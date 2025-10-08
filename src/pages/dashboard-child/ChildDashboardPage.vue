@@ -5,7 +5,12 @@
         <p class="dashboard__eyebrow">{{ t('pages.dashboard.greeting', { name: childName }) }}</p>
         <h1>{{ headline }}</h1>
       </div>
-      <ChoreCreateForm />
+      <div class="dashboard__actions">
+        <ChoreCreateForm />
+        <button class="dashboard__logout" type="button" @click="logoutChild">
+          {{ t('common.actions.logout') }}
+        </button>
+      </div>
     </section>
 
     <section class="dashboard__summary">
@@ -45,6 +50,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import { useChildChoresQuery } from '@/entities/chore';
 import { ChoreCreateForm } from '@/features/chore-create';
@@ -53,12 +59,18 @@ import { useSessionStore } from '@/shared/session';
 import { ChoreListWidget } from '@/widgets';
 
 const { t } = useI18n();
+const router = useRouter();
 const session = useSessionStore();
 
 const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 const headline = computed(() => t('pages.dashboard.pendingTitle'));
 
 const { chores, isLoading, isError } = useChildChoresQuery();
+
+function logoutChild() {
+  session.clearChildSession();
+  void router.push({ name: 'child-login' });
+}
 
 const todayChores = computed(() =>
   chores.value.filter((chore) => {
@@ -104,6 +116,30 @@ const summary = computed(() => ({
   gap: 1.5rem;
   align-items: start;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.dashboard__actions {
+  display: grid;
+  gap: 1rem;
+  justify-items: end;
+}
+
+.dashboard__logout {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dashboard__logout:hover {
+  background: var(--color-surface-alt);
+  box-shadow: var(--shadow-sm);
 }
 
 .dashboard__eyebrow {
