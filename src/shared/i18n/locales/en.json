@@ -21,6 +21,15 @@
     }
   },
   "features": {
+    "authParent": {
+      "title": "Welcome back, parent!",
+      "subtitle": "Sign in to continue to your family's dashboard.",
+      "email": "Email",
+      "password": "Password",
+      "deviceName": "Device name",
+      "submit": "Continue",
+      "loggedInAs": "Signed in as {email}"
+    },
     "authKid": {
       "title": "Welcome back!",
       "subtitle": "Tap the emojis in your secret code to log in.",

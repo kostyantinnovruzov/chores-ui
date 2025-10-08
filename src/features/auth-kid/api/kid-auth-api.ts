@@ -1,4 +1,5 @@
 import { http } from '@/shared/api';
+import { useSessionStore } from '@/shared/session';
 
 export interface KidLoginRequest {
   child_id: number;
@@ -22,7 +23,16 @@ export interface KidLoginResponse {
 
 export const kidAuthApi = {
   async login(payload: KidLoginRequest): Promise<KidLoginResponse> {
-    const { data } = await http.post<KidLoginResponse>('auth/kids/login', payload);
+    const session = useSessionStore();
+    const parentToken = session.parentToken;
+    const headers = parentToken
+      ? {
+          Authorization: `Bearer ${parentToken}`
+        }
+      : undefined;
+    const { data } = await http.post<KidLoginResponse>('auth/kids/login', payload, {
+      headers
+    });
     return data;
   }
 };

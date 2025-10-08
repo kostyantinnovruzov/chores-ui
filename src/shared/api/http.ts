@@ -17,8 +17,14 @@ export const http = axios.create({
 
 http.interceptors.request.use((config) => {
   const session = useSessionStore();
-  if (session.token) {
-    config.headers.Authorization = `Bearer ${session.token}`;
+  if (!config.headers?.Authorization) {
+    const token = session.activeToken;
+    if (token) {
+      if (!config.headers) {
+        config.headers = {};
+      }
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
@@ -28,7 +34,18 @@ http.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     if (status === 401) {
-      useSessionStore().clearSession();
+      const session = useSessionStore();
+      const authHeader: string | undefined = error.config?.headers?.Authorization;
+      const parentToken = session.parentToken;
+      const childToken = session.childToken;
+
+      if (authHeader && parentToken && authHeader.includes(parentToken)) {
+        session.clearAll();
+      } else if (authHeader && childToken && authHeader.includes(childToken)) {
+        session.clearChildSession();
+      } else {
+        session.clearAll();
+      }
     }
     if (status && status >= 500) {
       notifyError('Something went wrong. Please try again.');

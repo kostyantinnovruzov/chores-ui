@@ -35,7 +35,7 @@ export function useKidLoginForm() {
   const mutation = useMutation({
     mutationFn: (payload: KidLoginRequest) => kidAuthApi.login(payload),
     onSuccess: (response) => {
-      session.setSession({
+      session.setChildSession({
         token: response.token,
         user: {
           id: response.user.id,

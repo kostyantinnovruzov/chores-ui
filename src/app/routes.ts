@@ -5,13 +5,19 @@ export const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'child-dashboard',
     component: () => import('@/pages/dashboard-child'),
-    meta: { requiresAuth: true, roles: ['child'] }
+    meta: { requiresChildAuth: true }
   },
   {
-    path: '/login',
-    name: 'login',
+    path: '/parent/login',
+    name: 'parent-login',
+    component: () => import('@/pages/login-parent'),
+    meta: { parentGuestOnly: true }
+  },
+  {
+    path: '/child/login',
+    name: 'child-login',
     component: () => import('@/pages/login'),
-    meta: { guestOnly: true }
+    meta: { requiresParentAuth: true, childGuestOnly: true }
   },
   {
     path: '/:pathMatch(.*)*',

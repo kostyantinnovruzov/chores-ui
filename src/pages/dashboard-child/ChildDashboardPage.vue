@@ -55,7 +55,7 @@ import { ChoreListWidget } from '@/widgets';
 const { t } = useI18n();
 const session = useSessionStore();
 
-const childName = computed(() => session.user?.nickname ?? 'Friend');
+const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 const headline = computed(() => t('pages.dashboard.pendingTitle'));
 
 const { chores, isLoading, isError } = useChildChoresQuery();
