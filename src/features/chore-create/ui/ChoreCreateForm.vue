@@ -6,44 +6,37 @@
     <form @submit.prevent="submit">
       <label>
         <span>{{ t('features.choreCreate.titleLabel') }}</span>
-        <input v-model="values.title" type="text" name="title" required />
+        <input v-model="title" type="text" name="title" required />
         <small v-if="errors.title">{{ errors.title }}</small>
       </label>
 
       <label>
         <span>{{ t('features.choreCreate.descriptionLabel') }}</span>
-        <textarea v-model="values.description" name="description" rows="3" />
+        <textarea v-model="description" name="description" rows="3" />
         <small v-if="errors.description">{{ errors.description }}</small>
       </label>
 
       <label>
         <span>{{ t('features.choreCreate.categoryLabel') }}</span>
-        <input v-model="values.category" type="text" name="category" />
+        <input v-model="category" type="text" name="category" />
         <small v-if="errors.category">{{ errors.category }}</small>
       </label>
 
       <label>
         <span>{{ t('features.choreCreate.dueAtLabel') }}</span>
-        <input v-model="values.dueAt" type="datetime-local" name="dueAt" />
+        <input v-model="dueAt" type="datetime-local" name="dueAt" />
         <small v-if="errors.dueAt">{{ errors.dueAt }}</small>
       </label>
 
       <label>
         <span>{{ t('features.choreCreate.pointsLabel') }}</span>
-        <input
-          v-model.number="values.points"
-          type="number"
-          name="points"
-          min="0"
-          max="1000"
-          required
-        />
+        <input v-model.number="points" type="number" name="points" min="0" max="1000" required />
         <small v-if="errors.points">{{ errors.points }}</small>
       </label>
 
       <label>
         <span>{{ t('features.choreCreate.recurrenceLabel') }}</span>
-        <select v-model="values.recurrence" name="recurrence">
+        <select v-model="recurrence" name="recurrence">
           <option value="">{{ t('features.choreCreate.recurrenceNone') }}</option>
           <option value="daily">{{ t('features.choreCreate.recurrenceDaily') }}</option>
           <option value="weekly">{{ t('features.choreCreate.recurrenceWeekly') }}</option>
@@ -65,8 +58,8 @@ import { useI18n } from 'vue-i18n';
 import { useChoreCreateForm } from '../model/useChoreCreateForm';
 
 const { t } = useI18n();
-const { form, submit, isSubmitting } = useChoreCreateForm();
-const { errors, values } = form;
+const { submit, isSubmitting, errors, models } = useChoreCreateForm();
+const { title, description, category, dueAt, points, recurrence } = models;
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query';
-import { useForm } from 'vee-validate';
+import { useField, useForm } from 'vee-validate';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -27,6 +27,10 @@ export function useKidLoginForm() {
       deviceName: 'ipad-mini'
     }
   });
+
+  const { value: childIdModel } = useField<string>('childId');
+  const { value: passcodeModel } = useField<string>('passcode');
+  const { value: deviceNameModel } = useField<string>('deviceName');
 
   const mutation = useMutation({
     mutationFn: (payload: KidLoginRequest) => kidAuthApi.login(payload),
@@ -82,10 +86,13 @@ export function useKidLoginForm() {
   });
 
   return {
-    form,
     submit,
     isSubmitting: computed(() => mutation.isPending.value),
     errors: form.errors,
-    values: form.values
+    models: {
+      childId: childIdModel,
+      passcode: passcodeModel,
+      deviceName: deviceNameModel
+    }
   };
 }

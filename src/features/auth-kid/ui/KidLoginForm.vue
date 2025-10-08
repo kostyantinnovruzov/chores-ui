@@ -9,7 +9,7 @@
       <label class="login-card__field">
         <span>{{ t('features.authKid.childId') }}</span>
         <input
-          v-model="values.childId"
+          v-model="childId"
           inputmode="numeric"
           type="number"
           name="childId"
@@ -22,7 +22,7 @@
       <label class="login-card__field">
         <span>{{ t('features.authKid.passcode') }}</span>
         <input
-          v-model="values.passcode"
+          v-model="passcode"
           type="text"
           name="passcode"
           placeholder="star, heart, smile"
@@ -34,7 +34,7 @@
       <label class="login-card__field">
         <span>{{ t('features.authKid.deviceName') }}</span>
         <input
-          v-model="values.deviceName"
+          v-model="deviceName"
           type="text"
           name="deviceName"
           placeholder="ipad-mini"
@@ -57,8 +57,8 @@ import { useI18n } from 'vue-i18n';
 import { useKidLoginForm } from '../model/useKidLoginForm';
 
 const { t } = useI18n();
-const { form, submit, isSubmitting } = useKidLoginForm();
-const { errors, values } = form;
+const { submit, isSubmitting, errors, models } = useKidLoginForm();
+const { childId, passcode, deviceName } = models;
 </script>
 
 <style scoped>

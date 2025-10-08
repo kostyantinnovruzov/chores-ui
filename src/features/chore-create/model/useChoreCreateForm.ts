@@ -1,4 +1,4 @@
-import { useForm } from 'vee-validate';
+import { useField, useForm } from 'vee-validate';
 import { computed } from 'vue';
 
 import { choreCreateSchema } from '../lib/schema';
@@ -29,6 +29,13 @@ export function useChoreCreateForm() {
   const form = useForm<ChoreCreateFormValues>({
     initialValues
   });
+
+  const { value: titleModel } = useField<string>('title');
+  const { value: descriptionModel } = useField<string>('description');
+  const { value: categoryModel } = useField<string>('category');
+  const { value: dueAtModel } = useField<string>('dueAt');
+  const { value: pointsModel } = useField<number | null>('points');
+  const { value: recurrenceModel } = useField<'' | 'daily' | 'weekly'>('recurrence');
 
   const submit = form.handleSubmit(async (values) => {
     const parsed = choreCreateSchema.safeParse({
@@ -66,10 +73,16 @@ export function useChoreCreateForm() {
   });
 
   return {
-    form,
     submit,
     isSubmitting: computed(() => mutation.isPending.value),
     errors: form.errors,
-    values: form.values
+    models: {
+      title: titleModel,
+      description: descriptionModel,
+      category: categoryModel,
+      dueAt: dueAtModel,
+      points: pointsModel,
+      recurrence: recurrenceModel
+    }
   };
 }
