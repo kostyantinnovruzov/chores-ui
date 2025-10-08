@@ -22,7 +22,7 @@ export interface KidLoginResponse {
 
 export const kidAuthApi = {
   async login(payload: KidLoginRequest): Promise<KidLoginResponse> {
-    const { data } = await http.post<KidLoginResponse>('/auth/kids/login', payload);
+    const { data } = await http.post<KidLoginResponse>('auth/kids/login', payload);
     return data;
   }
 };

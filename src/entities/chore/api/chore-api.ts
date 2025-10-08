@@ -27,18 +27,18 @@ function mapChore(response: ChildChoreResponse): Chore {
 
 export const choreApi = {
   async fetchList(): Promise<Chore[]> {
-    const { data } = await http.get<ChildChoreCollectionResponse>('/chores');
+    const { data } = await http.get<ChildChoreCollectionResponse>('chores');
     return data.data.map(mapChore);
   },
   async create(payload: ChildChoreCreateRequest): Promise<Chore> {
-    const { data } = await http.post<ChildChoreResponse>('/chores', payload);
+    const { data } = await http.post<ChildChoreResponse>('chores', payload);
     return mapChore(data);
   },
   async update(id: number, payload: ChildChoreUpdateRequest): Promise<Chore> {
-    const { data } = await http.put<ChildChoreResponse>(`/chores/${id}`, payload);
+    const { data } = await http.put<ChildChoreResponse>(`chores/${id}`, payload);
     return mapChore(data);
   },
   async delete(id: number): Promise<void> {
-    await http.delete(`/chores/${id}`);
+    await http.delete(`chores/${id}`);
   }
 };
