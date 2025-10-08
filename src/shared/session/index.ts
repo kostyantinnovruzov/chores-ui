@@ -23,27 +23,53 @@ interface ChildUser {
   status: 'active' | 'inactive' | (string & {});
 }
 
+interface SessionPair<TUser> {
+  token: string | null;
+  user: TUser | null;
+}
+
 interface SessionState {
-  parent: {
-    token: string | null;
-    user: ParentUser | null;
-  };
-  child: {
-    token: string | null;
-    user: ChildUser | null;
-  };
+  parent: SessionPair<ParentUser>;
+  child: SessionPair<ChildUser>;
+}
+
+const STORAGE_KEYS = {
+  parent: 'session.parent',
+  child: 'session.child'
+} as const;
+
+function loadFromStorage<TUser>(key: string): SessionPair<TUser> {
+  if (typeof window === 'undefined') {
+    return { token: null, user: null };
+  }
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return { token: null, user: null };
+    const parsed = JSON.parse(raw) as SessionPair<TUser>;
+    return {
+      token: parsed?.token ?? null,
+      user: parsed?.user ?? null
+    };
+  } catch {
+    window.localStorage.removeItem(key);
+    return { token: null, user: null };
+  }
+}
+
+function saveToStorage<TUser>(key: string, value: SessionPair<TUser>) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function clearStorage(key: string) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(key);
 }
 
 export const useSessionStore = defineStore('session', {
   state: (): SessionState => ({
-    parent: {
-      token: null,
-      user: null
-    },
-    child: {
-      token: null,
-      user: null
-    }
+    parent: loadFromStorage<ParentUser>(STORAGE_KEYS.parent),
+    child: loadFromStorage<ChildUser>(STORAGE_KEYS.child)
   }),
   getters: {
     parentToken: (state) => state.parent.token,
@@ -77,24 +103,28 @@ export const useSessionStore = defineStore('session', {
         token: payload.token,
         user: payload.user
       };
+      saveToStorage(STORAGE_KEYS.parent, this.parent);
     },
     clearParentSession() {
       this.parent = {
         token: null,
         user: null
       };
+      clearStorage(STORAGE_KEYS.parent);
     },
     setChildSession(payload: { token: string; user: ChildUser }) {
       this.child = {
         token: payload.token,
         user: payload.user
       };
+      saveToStorage(STORAGE_KEYS.child, this.child);
     },
     clearChildSession() {
       this.child = {
         token: null,
         user: null
       };
+      clearStorage(STORAGE_KEYS.child);
     },
     clearAll() {
       this.clearChildSession();
