@@ -93,6 +93,7 @@ export function useKidLoginForm() {
       childId: childIdModel,
       passcode: passcodeModel,
       deviceName: deviceNameModel
-    }
+    },
+    resetErrors: () => form.setErrors({})
   };
 }

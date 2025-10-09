@@ -3,7 +3,8 @@
     "actions": {
       "submit": "Submit",
       "create": "Create",
-      "logout": "Log out"
+      "logout": "Log out",
+      "retry": "Try again"
     },
     "state": {
       "loading": "Loading…",
@@ -33,6 +34,15 @@
     "authKid": {
       "title": "Welcome back!",
       "subtitle": "Tap the emojis in your secret code to log in.",
+      "pickProfileTitle": "Who's playing today?",
+      "pickProfileSubtitle": "Choose your profile to jump into your chores.",
+      "noProfiles": "No child profiles yet. Ask your parent for help.",
+      "enterPasscodeTitle": "Hi {name}!",
+      "enterPasscodeSubtitle": "Enter your secret emoji code to continue.",
+      "deviceHint": "You're signing in on this device.",
+      "changeProfile": "Pick a different profile",
+      "useManualEntry": "Use child ID instead",
+      "backToProfiles": "Back to profiles",
       "childId": "Child ID",
       "deviceName": "Device name",
       "passcode": "Emoji passcode (comma separated)",

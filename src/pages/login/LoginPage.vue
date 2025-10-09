@@ -1,6 +1,40 @@
 <template>
   <main class="login-page app-shell">
-    <KidLoginForm />
+    <KidProfilePicker
+      v-if="!selectedKid && !manualEntry"
+      :kids="kidProfiles"
+      :is-loading="isKidsLoading"
+      :is-error="isKidsError"
+      @select="handleSelect"
+      @retry="retryKids"
+    />
+
+    <KidLoginForm
+      v-else
+      :key="selectedKid?.id ?? 'manual-entry'"
+      :selected-child="selectedKid"
+      @change-child="resetSelection"
+    />
+
+    <div v-if="!selectedKid" class="login-page__actions">
+      <button
+        v-if="manualEntry"
+        type="button"
+        class="login-page__action"
+        @click="toggleManual(false)"
+      >
+        {{ t('features.authKid.backToProfiles') }}
+      </button>
+      <button
+        v-else
+        type="button"
+        class="login-page__action"
+        @click="toggleManual(true)"
+      >
+        {{ t('features.authKid.useManualEntry') }}
+      </button>
+    </div>
+
     <section v-if="showParentControls" class="login-page__meta">
       <p>
         {{ t('features.authParent.loggedInAs', { email: parentEmail }) }}
@@ -13,16 +47,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import { KidLoginForm } from '@/features/auth-kid';
+import { type KidProfile, useParentKidsQuery } from '@/entities/kid';
+import { KidLoginForm, KidProfilePicker } from '@/features/auth-kid';
 import { useSessionStore } from '@/shared/session';
 
 const router = useRouter();
 const session = useSessionStore();
 const { t } = useI18n();
+
+const manualEntry = ref(false);
+const selectedKid = ref<KidProfile | null>(null);
+
+const {
+  data: kids,
+  isLoading: isKidsLoading,
+  isError: isKidsError,
+  refetch: retryKids
+} = useParentKidsQuery();
+
+const kidProfiles = computed(() => kids.value ?? []);
 
 const parentEmail = computed(() => session.parent.user?.email ?? 'parent');
 const showParentControls = computed(
@@ -33,6 +80,23 @@ function logoutParent() {
   session.clearAll();
   void router.push({ name: 'parent-login' });
 }
+
+function handleSelect(kid: KidProfile) {
+  selectedKid.value = kid;
+  manualEntry.value = false;
+}
+
+function resetSelection() {
+  selectedKid.value = null;
+  manualEntry.value = false;
+}
+
+function toggleManual(state: boolean) {
+  manualEntry.value = state;
+  if (state) {
+    selectedKid.value = null;
+  }
+}
 </script>
 
 <style scoped>
@@ -42,6 +106,29 @@ function logoutParent() {
   place-items: center;
   padding: 2rem;
   gap: 1.5rem;
+}
+
+.login-page__actions {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.login-page__action {
+  padding: 0.5rem 1.5rem;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.login-page__action:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
 }
 
 .login-page__meta {

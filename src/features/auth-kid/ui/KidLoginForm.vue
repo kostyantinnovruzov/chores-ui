@@ -1,12 +1,37 @@
 <template>
   <section class="login-card">
     <header class="login-card__header">
-      <h1>{{ t('features.authKid.title') }}</h1>
-      <p>{{ t('features.authKid.subtitle') }}</p>
+      <h1>
+        {{ selectedChild ? t('features.authKid.enterPasscodeTitle', { name: selectedChild.nickname }) : t('features.authKid.title') }}
+      </h1>
+      <p>
+        {{
+          selectedChild
+            ? t('features.authKid.enterPasscodeSubtitle')
+            : t('features.authKid.subtitle')
+        }}
+      </p>
     </header>
 
     <form class="login-card__form" @submit.prevent="submit">
-      <label class="login-card__field">
+      <div v-if="selectedChild" class="login-card__selected">
+        <div class="login-card__avatar">
+          <img v-if="selectedChild.avatarPath" :alt="selectedChild.nickname" :src="selectedChild.avatarPath" />
+          <span v-else>{{ initials(selectedChild.nickname) }}</span>
+        </div>
+        <div>
+          <strong>{{ selectedChild.nickname }}</strong>
+          <p v-if="selectedChild.passcodeHint" class="login-card__hint">
+            {{ selectedChild.passcodeHint }}
+          </p>
+          <p v-else>{{ t('features.authKid.enterPasscodeSubtitle') }}</p>
+        </div>
+        <button type="button" class="login-card__change" @click="$emit('change-child')">
+          {{ t('features.authKid.changeProfile') }}
+        </button>
+        <input v-model="childId" type="hidden" name="childId" />
+      </div>
+      <label v-else class="login-card__field">
         <span>{{ t('features.authKid.childId') }}</span>
         <input
           v-model="childId"
@@ -52,13 +77,45 @@
 </template>
 
 <script setup lang="ts">
+import { toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import type { KidProfile } from '@/entities/kid';
 
 import { useKidLoginForm } from '../model/useKidLoginForm';
 
+const props = defineProps<{ selectedChild?: KidProfile | null }>();
+
+defineEmits<{
+  (e: 'change-child'): void;
+}>();
+
+const { selectedChild } = toRefs(props);
 const { t } = useI18n();
-const { submit, isSubmitting, errors, models } = useKidLoginForm();
+const { submit, isSubmitting, errors, models, resetErrors } = useKidLoginForm();
 const { childId, passcode, deviceName } = models;
+
+watch(
+  selectedChild,
+  (child, previous) => {
+    childId.value = child ? String(child.id) : '';
+    if (child || previous) {
+      passcode.value = '';
+      resetErrors();
+    }
+  },
+  { immediate: true }
+);
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+}
 </script>
 
 <style scoped>
@@ -88,6 +145,49 @@ const { childId, passcode, deviceName } = models;
 .login-card__form {
   display: grid;
   gap: 1.25rem;
+}
+
+.login-card__selected {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.login-card__selected > div:last-of-type {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.login-card__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.login-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-card__change {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  cursor: pointer;
 }
 
 .login-card__field {
@@ -134,6 +234,12 @@ button:disabled {
 button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(99, 102, 241, 0.25);
+}
+
+.login-card__hint {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
 .login-card__error {
