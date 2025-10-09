@@ -79,7 +79,7 @@ export function useKidLoginForm() {
     await mutation.mutateAsync({
       child_id: parsed.data.childId,
       device_name: parsed.data.deviceName,
-      passcode: parsed.data.passcode.map((digit) => Number(digit))
+      password: parsed.data.passcode.join('')
     });
   });
 
