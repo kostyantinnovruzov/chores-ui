@@ -3,7 +3,7 @@ import { useSessionStore } from '@/shared/session';
 
 export interface KidLoginRequest {
   child_id: number;
-  passcode: string[];
+  passcode: number[];
   device_name: string;
 }
 

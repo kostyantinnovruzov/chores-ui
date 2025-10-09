@@ -52,21 +52,25 @@
         <small v-if="errors.childId" class="login-card__error">{{ errors.childId }}</small>
       </label>
 
-      <label class="login-card__field">
+      <label class="login-card__field login-card__field--keyboard">
         <span>{{ t('features.authKid.passcode') }}</span>
-        <input
-          v-model="passcode"
-          type="text"
-          name="passcode"
-          placeholder="star, heart, smile"
-          required
-        />
-        <small v-if="errors.passcode" class="login-card__error">{{ errors.passcode }}</small>
+        <div class="login-card__keyboard">
+          <EmojiPinKeyboard
+            v-model="passcodeValue"
+            :disabled="isSubmitting"
+            :min-length="4"
+            :max-length="6"
+            @complete="submit()"
+          />
+          <small v-if="errors.passcode" class="login-card__error login-card__error--inline">
+            {{ errors.passcode }}
+          </small>
+        </div>
       </label>
 
       <input v-model="deviceName" type="hidden" name="deviceName" />
 
-      <button :disabled="isSubmitting" type="submit">
+      <button :disabled="isSubmitDisabled" type="submit">
         <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
         <span v-else>{{ t('features.authKid.submit') }}</span>
       </button>
@@ -75,9 +79,10 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, watch } from 'vue';
+import { computed, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import EmojiPinKeyboard from './EmojiPinKeyboard.vue';
 import { useKidLoginForm } from '../model/useKidLoginForm';
 
 import type { KidProfile } from '@/entities/kid';
@@ -93,12 +98,25 @@ const { t } = useI18n();
 const { submit, isSubmitting, errors, models, resetErrors } = useKidLoginForm();
 const { childId, passcode, deviceName } = models;
 
+const passcodeValue = computed<string[]>({
+  get: () => passcode.value ?? [],
+  set: (value) => {
+    passcode.value = value;
+  }
+});
+
+const isPasscodeReady = computed(() => passcodeValue.value.length >= 4);
+const isChildProvided = computed(() => Boolean(childId.value));
+const isSubmitDisabled = computed(
+  () => isSubmitting.value || !isChildProvided.value || !isPasscodeReady.value
+);
+
 watch(
   selectedChild,
   (child, previous) => {
     childId.value = child ? String(child.id) : '';
     if (child || previous) {
-      passcode.value = '';
+      passcodeValue.value = [];
       resetErrors();
     }
   },
@@ -143,6 +161,11 @@ function initials(name: string) {
 .login-card__form {
   display: grid;
   gap: 1.25rem;
+}
+
+.login-card__keyboard {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .login-card__selected {
@@ -195,9 +218,18 @@ function initials(name: string) {
   gap: 0.5rem;
 }
 
+.login-card__field--keyboard {
+  gap: 0.75rem;
+}
+
 .login-card__field span {
   font-weight: 600;
   color: var(--color-text-primary);
+}
+
+.login-card__keyboard {
+  display: grid;
+  gap: 0.75rem;
 }
 
 input {
@@ -245,5 +277,9 @@ button:not(:disabled):hover {
 .login-card__error {
   color: #ef4444;
   font-size: 0.85rem;
+}
+
+.login-card__error--inline {
+  text-align: center;
 }
 </style>

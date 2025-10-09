@@ -45,8 +45,15 @@
       "backToProfiles": "Back to profiles",
       "childId": "Child ID",
       "deviceName": "Device name",
-      "passcode": "Emoji passcode (comma separated)",
-      "submit": "Enter dashboard"
+      "passcode": "Emoji passcode",
+      "submit": "Enter dashboard",
+      "pinInstruction": "Pick {min} to {max} emojis for your code.",
+      "pinKeyboard": {
+        "placeholder": "Tap emojis to build your code",
+        "clear": "Clear",
+        "delete": "Delete",
+        "submit": "Done"
+      }
     },
     "choreCreate": {
       "title": "Add a new chore",

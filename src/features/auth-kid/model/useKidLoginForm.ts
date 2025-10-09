@@ -12,7 +12,7 @@ import { useSessionStore } from '@/shared/session';
 
 interface KidLoginFormValues {
   childId: string;
-  passcode: string;
+  passcode: string[];
   deviceName: string;
 }
 
@@ -24,13 +24,13 @@ export function useKidLoginForm() {
   const form = useForm<KidLoginFormValues>({
     initialValues: {
       childId: '',
-      passcode: '',
+      passcode: [],
       deviceName: getBrowserDeviceName()
     }
   });
 
   const { value: childIdModel } = useField<string>('childId');
-  const { value: passcodeModel } = useField<string>('passcode');
+  const { value: passcodeModel } = useField<string[]>('passcode');
   const { value: deviceNameModel } = useField<string>('deviceName');
 
   const mutation = useMutation({
@@ -63,10 +63,7 @@ export function useKidLoginForm() {
     const parsed = kidLoginSchema.safeParse({
       childId: Number(values.childId),
       deviceName: values.deviceName.trim(),
-      passcode: values.passcode
-        .split(',')
-        .map((emoji) => emoji.trim())
-        .filter(Boolean)
+      passcode: values.passcode ?? []
     });
 
     if (!parsed.success) {
@@ -82,7 +79,7 @@ export function useKidLoginForm() {
     await mutation.mutateAsync({
       child_id: parsed.data.childId,
       device_name: parsed.data.deviceName,
-      passcode: parsed.data.passcode
+      passcode: parsed.data.passcode.map((digit) => Number(digit))
     });
   });
 
