@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { kidAuthApi, type KidLoginRequest } from '../api/kid-auth-api';
 import { kidLoginSchema } from '../lib/schema';
 
+import { getBrowserDeviceName } from '@/shared/lib/device';
 import { notifyError, notifySuccess } from '@/shared/lib/notifications';
 import { useSessionStore } from '@/shared/session';
 
@@ -24,7 +25,7 @@ export function useKidLoginForm() {
     initialValues: {
       childId: '',
       passcode: '',
-      deviceName: 'ipad-mini'
+      deviceName: getBrowserDeviceName()
     }
   });
 

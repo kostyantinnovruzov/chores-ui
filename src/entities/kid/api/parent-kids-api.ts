@@ -1,6 +1,6 @@
-import { http } from '@/shared/api';
-
 import type { KidProfile } from '../model/types';
+
+import { http } from '@/shared/api';
 
 interface KidProfileDto {
   id: number;

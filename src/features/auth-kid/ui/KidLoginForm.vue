@@ -2,7 +2,11 @@
   <section class="login-card">
     <header class="login-card__header">
       <h1>
-        {{ selectedChild ? t('features.authKid.enterPasscodeTitle', { name: selectedChild.nickname }) : t('features.authKid.title') }}
+        {{
+          selectedChild
+            ? t('features.authKid.enterPasscodeTitle', { name: selectedChild.nickname })
+            : t('features.authKid.title')
+        }}
       </h1>
       <p>
         {{
@@ -16,7 +20,11 @@
     <form class="login-card__form" @submit.prevent="submit">
       <div v-if="selectedChild" class="login-card__selected">
         <div class="login-card__avatar">
-          <img v-if="selectedChild.avatarPath" :alt="selectedChild.nickname" :src="selectedChild.avatarPath" />
+          <img
+            v-if="selectedChild.avatarPath"
+            :alt="selectedChild.nickname"
+            :src="selectedChild.avatarPath"
+          />
           <span v-else>{{ initials(selectedChild.nickname) }}</span>
         </div>
         <div>
@@ -56,17 +64,7 @@
         <small v-if="errors.passcode" class="login-card__error">{{ errors.passcode }}</small>
       </label>
 
-      <label class="login-card__field">
-        <span>{{ t('features.authKid.deviceName') }}</span>
-        <input
-          v-model="deviceName"
-          type="text"
-          name="deviceName"
-          placeholder="ipad-mini"
-          required
-        />
-        <small v-if="errors.deviceName" class="login-card__error">{{ errors.deviceName }}</small>
-      </label>
+      <input v-model="deviceName" type="hidden" name="deviceName" />
 
       <button :disabled="isSubmitting" type="submit">
         <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
@@ -80,9 +78,9 @@
 import { toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import type { KidProfile } from '@/entities/kid';
-
 import { useKidLoginForm } from '../model/useKidLoginForm';
+
+import type { KidProfile } from '@/entities/kid';
 
 const props = defineProps<{ selectedChild?: KidProfile | null }>();
 

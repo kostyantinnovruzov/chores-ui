@@ -61,7 +61,6 @@ function initials(name: string) {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 }
-
 </script>
 
 <style scoped>

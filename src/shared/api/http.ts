@@ -37,7 +37,8 @@ http.interceptors.response.use(
       const session = useSessionStore();
       const authHeader: string | undefined = error.config?.headers?.Authorization;
       const requestUrl = error.config?.url ?? '';
-      const isKidLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('auth/kids/login');
+      const isKidLoginRequest =
+        typeof requestUrl === 'string' && requestUrl.includes('auth/kids/login');
       const parentToken = session.parentToken;
       const childToken = session.childToken;
 

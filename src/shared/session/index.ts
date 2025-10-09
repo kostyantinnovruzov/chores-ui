@@ -92,8 +92,7 @@ export const useSessionStore = defineStore('session', {
       return roles;
     },
     hasRole(): (required: string[]) => boolean {
-      return (required: string[]) =>
-        required.some((role) => this.roles.includes(role as Role));
+      return (required: string[]) => required.some((role) => this.roles.includes(role as Role));
     },
     childId: (state) => state.child.user?.id ?? null
   },

@@ -1,7 +1,7 @@
 <template>
   <main class="login-page app-shell">
     <KidProfilePicker
-      v-if="!selectedKid && !manualEntry"
+      v-if="!selectedKid"
       :kids="kidProfiles"
       :is-loading="isKidsLoading"
       :is-error="isKidsError"
