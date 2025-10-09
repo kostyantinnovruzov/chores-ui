@@ -36,14 +36,18 @@ http.interceptors.response.use(
     if (status === 401) {
       const session = useSessionStore();
       const authHeader: string | undefined = error.config?.headers?.Authorization;
+      const requestUrl = error.config?.url ?? '';
+      const isKidLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('auth/kids/login');
       const parentToken = session.parentToken;
       const childToken = session.childToken;
 
       if (authHeader && parentToken && authHeader.includes(parentToken)) {
-        session.clearAll();
+        if (!isKidLoginRequest) {
+          session.clearAll();
+        }
       } else if (authHeader && childToken && authHeader.includes(childToken)) {
         session.clearChildSession();
-      } else {
+      } else if (!isKidLoginRequest) {
         session.clearAll();
       }
     }

@@ -187,6 +187,8 @@ function initials(name: string) {
   border-radius: var(--radius-base);
   border: 1px solid var(--color-border);
   background: transparent;
+  color: var(--color-text-primary);
+  font-weight: 700;
   cursor: pointer;
 }
 
