@@ -6,7 +6,9 @@
         <h1>{{ headline }}</h1>
       </div>
       <div class="dashboard__actions">
-        <ChoreCreateForm />
+        <button class="dashboard__action-button" type="button" @click="openCreateModal">
+          {{ t('features.authKid.open') }}
+        </button>
         <button class="dashboard__logout" type="button" @click="logoutChild">
           {{ t('common.actions.logout') }}
         </button>
@@ -45,10 +47,24 @@
       </div>
     </section>
   </main>
+  <Teleport to="body">
+    <div v-if="isCreateModalOpen" class="chore-modal" @click.self="closeCreateModal">
+      <div class="chore-modal__dialog" role="dialog" aria-modal="true">
+        <header class="chore-modal__header">
+          <h2>{{ t('features.choreCreate.title') }}</h2>
+          <button type="button" class="chore-modal__close" @click="closeCreateModal">
+            <span class="sr-only">{{ t('common.actions.close') }}</span>
+            ×
+          </button>
+        </header>
+        <ChoreCreateForm :show-header="false" @submitted="closeCreateModal" />
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -61,6 +77,7 @@ import { ChoreListWidget } from '@/widgets';
 const { t } = useI18n();
 const router = useRouter();
 const session = useSessionStore();
+const isCreateModalOpen = ref(false);
 
 const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 const headline = computed(() => t('pages.dashboard.pendingTitle'));
@@ -70,6 +87,14 @@ const { chores, isLoading, isError } = useChildChoresQuery();
 function logoutChild() {
   session.clearChildSession();
   void router.push({ name: 'child-login' });
+}
+
+function openCreateModal() {
+  isCreateModalOpen.value = true;
+}
+
+function closeCreateModal() {
+  isCreateModalOpen.value = false;
 }
 
 const todayChores = computed(() =>
@@ -119,9 +144,28 @@ const summary = computed(() => ({
 }
 
 .dashboard__actions {
-  display: grid;
-  gap: 1rem;
-  justify-items: end;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.dashboard__action-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-base);
+  border: none;
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  color: var(--color-accent-contrast);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dashboard__action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(99, 102, 241, 0.25);
 }
 
 .dashboard__logout {
@@ -140,6 +184,62 @@ const summary = computed(() => ({
 .dashboard__logout:hover {
   background: var(--color-surface-alt);
   box-shadow: var(--shadow-sm);
+}
+
+.chore-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.chore-modal__dialog {
+  width: min(480px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 24px;
+  background: var(--color-surface);
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.25);
+  padding: 1.75rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.chore-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chore-modal__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.chore-modal__close {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .dashboard__eyebrow {

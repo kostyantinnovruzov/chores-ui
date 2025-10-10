@@ -1,6 +1,6 @@
 <template>
   <section class="chore-create">
-    <header>
+    <header v-if="showHeader">
       <h2>{{ t('features.choreCreate.title') }}</h2>
     </header>
     <form @submit.prevent="submit">
@@ -53,13 +53,36 @@
 </template>
 
 <script setup lang="ts">
+import { toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useChoreCreateForm } from '../model/useChoreCreateForm';
 
+const emit = defineEmits<{
+  (e: 'submitted'): void;
+}>();
+
+const props = withDefaults(
+  defineProps<{
+    showHeader?: boolean;
+  }>(),
+  {
+    showHeader: true
+  }
+);
+
+const { showHeader } = toRefs(props);
+
 const { t } = useI18n();
-const { submit, isSubmitting, errors, models } = useChoreCreateForm();
+const { submit, isSubmitting, isSuccessful, resetMutation, errors, models } = useChoreCreateForm();
 const { title, description, category, dueAt, points, recurrence } = models;
+
+watch(isSuccessful, (value) => {
+  if (value) {
+    emit('submitted');
+    resetMutation();
+  }
+});
 </script>
 
 <style scoped>

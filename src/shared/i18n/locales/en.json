@@ -4,7 +4,8 @@
       "submit": "Submit",
       "create": "Create",
       "logout": "Log out",
-      "retry": "Try again"
+      "retry": "Try again",
+      "close": "Close"
     },
     "state": {
       "loading": "Loading…",
@@ -53,7 +54,8 @@
         "clear": "Clear",
         "delete": "Delete",
         "submit": "Done"
-      }
+      },
+      "open": "Add chore"
     },
     "choreCreate": {
       "title": "Add a new chore",

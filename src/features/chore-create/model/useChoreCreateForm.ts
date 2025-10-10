@@ -75,6 +75,8 @@ export function useChoreCreateForm() {
   return {
     submit,
     isSubmitting: computed(() => mutation.isPending.value),
+    isSuccessful: computed(() => mutation.isSuccess.value),
+    resetMutation: () => mutation.reset(),
     errors: form.errors,
     models: {
       title: titleModel,
