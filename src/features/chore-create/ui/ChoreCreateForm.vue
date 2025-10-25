@@ -3,7 +3,7 @@
     <header v-if="showHeader">
       <h2>{{ t('features.choreCreate.title') }}</h2>
     </header>
-    <form @submit.prevent="submit">
+    <form @submit.prevent="handleSubmit">
       <label>
         <span>{{ t('features.choreCreate.titleLabel') }}</span>
         <input v-model="title" type="text" name="title" required />
@@ -44,45 +44,134 @@
         <small v-if="errors.recurrence">{{ errors.recurrence }}</small>
       </label>
 
-      <button type="submit" :disabled="isSubmitting">
-        <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
-        <span v-else>{{ t('features.choreCreate.submit') }}</span>
+      <button type="submit" :disabled="isBusy">
+        <span v-if="isBusy">{{ t('common.state.loading') }}</span>
+        <span v-else>{{ submitLabel }}</span>
       </button>
     </form>
   </section>
 </template>
 
 <script setup lang="ts">
-import { toRefs, watch } from 'vue';
+import { computed, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { choreCreateSchema } from '../lib/schema';
 import { useChoreCreateForm } from '../model/useChoreCreateForm';
 
+import { useChoreUpdateMutation } from '@/entities/chore';
+
 const emit = defineEmits<{
-  (e: 'submitted'): void;
+  (e: 'submitted', payload?: { mode: 'create' | 'edit' }): void;
 }>();
 
 const props = withDefaults(
   defineProps<{
     showHeader?: boolean;
+    mode?: 'create' | 'edit';
+    choreId?: number | null;
   }>(),
   {
-    showHeader: true
+    showHeader: true,
+    mode: 'create',
+    choreId: null
   }
 );
 
-const { showHeader } = toRefs(props);
+const { showHeader, mode, choreId } = toRefs(props);
 
 const { t } = useI18n();
-const { submit, isSubmitting, isSuccessful, resetMutation, errors, models } = useChoreCreateForm();
+const {
+  form,
+  submit,
+  isSubmitting,
+  wasSuccessful,
+  resetMutation,
+  resetForm,
+  setInitialValues,
+  errors,
+  models
+} = useChoreCreateForm();
 const { title, description, category, dueAt, points, recurrence } = models;
 
-watch(isSuccessful, (value) => {
+const updateMutation = useChoreUpdateMutation();
+const isEditMode = computed(() => mode.value === 'edit' && choreId.value !== null);
+const isBusy = computed(() =>
+  isEditMode.value ? updateMutation.isPending.value : isSubmitting.value
+);
+const submitLabel = computed(() =>
+  isEditMode.value ? t('features.choreCreate.update') : t('features.choreCreate.submit')
+);
+
+const submitUpdate = form.handleSubmit(async (values) => {
+  const parsed = choreCreateSchema.safeParse({
+    title: values.title,
+    description: values.description,
+    category: values.category,
+    dueAt: values.dueAt || undefined,
+    points: typeof values.points === 'number' ? values.points : Number(values.points),
+    recurrence: values.recurrence || undefined
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    form.setErrors({
+      title: fieldErrors.title?.[0],
+      description: fieldErrors.description?.[0],
+      category: fieldErrors.category?.[0],
+      dueAt: fieldErrors.dueAt?.[0],
+      points: fieldErrors.points?.[0],
+      recurrence: fieldErrors.recurrence?.[0]
+    });
+    return;
+  }
+
+  if (!choreId.value) return;
+
+  await updateMutation.mutateAsync({
+    id: choreId.value,
+    payload: {
+      title: parsed.data.title,
+      description: parsed.data.description ?? undefined,
+      category: parsed.data.category ?? undefined,
+      due_at: parsed.data.dueAt ?? undefined,
+      points: parsed.data.points,
+      recurrence: parsed.data.recurrence ?? undefined
+    }
+  });
+});
+
+watch(wasSuccessful, (value) => {
   if (value) {
-    emit('submitted');
+    emit('submitted', { mode: 'create' });
     resetMutation();
+    resetForm();
   }
 });
+
+watch(
+  () => updateMutation.isSuccess.value,
+  (value) => {
+    if (value) {
+      emit('submitted', { mode: 'edit' });
+      updateMutation.reset();
+      resetForm();
+    }
+  }
+);
+
+defineExpose({
+  setInitialValues,
+  resetForm
+});
+
+function handleSubmit() {
+  if (isEditMode.value) {
+    void submitUpdate();
+  } else {
+    void submit();
+  }
+}
 </script>
 
 <style scoped>

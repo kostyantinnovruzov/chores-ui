@@ -5,7 +5,9 @@
       "create": "Create",
       "logout": "Log out",
       "retry": "Try again",
-      "close": "Close"
+      "close": "Close",
+      "cancel": "Cancel",
+      "delete": "Delete"
     },
     "state": {
       "loading": "Loading…",
@@ -54,8 +56,7 @@
         "clear": "Clear",
         "delete": "Delete",
         "submit": "Done"
-      },
-      "open": "Add chore"
+      }
     },
     "choreCreate": {
       "title": "Add a new chore",
@@ -68,7 +69,11 @@
       "recurrenceDaily": "Daily",
       "recurrenceWeekly": "Weekly",
       "recurrenceNone": "No recurrence",
-      "submit": "Save chore"
+      "submit": "Save chore",
+      "update": "Update chore",
+      "open": "Add chore",
+      "confirmDeleteTitle": "Delete chore?",
+      "confirmDeleteMessage": "Are you sure you want to delete \"{title}\"? This cannot be undone."
     }
   },
   "pages": {

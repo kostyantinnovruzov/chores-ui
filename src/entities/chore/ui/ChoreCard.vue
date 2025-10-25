@@ -25,7 +25,24 @@
     </dl>
 
     <footer class="chore-card__footer">
-      <slot name="actions" />
+      <slot name="actions">
+        <button
+          class="chore-card__icon-button"
+          type="button"
+          aria-label="Edit chore"
+          @click="emit('edit', chore)"
+        >
+          ✏️
+        </button>
+        <button
+          class="chore-card__icon-button chore-card__icon-button--danger"
+          type="button"
+          aria-label="Delete chore"
+          @click="emit('delete', chore)"
+        >
+          🗑️
+        </button>
+      </slot>
     </footer>
   </article>
 </template>
@@ -35,6 +52,11 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { Chore } from '../model/chore';
+
+const emit = defineEmits<{
+  (e: 'edit', chore: Chore): void;
+  (e: 'delete', chore: Chore): void;
+}>();
 
 const props = defineProps<{
   chore: Chore;
@@ -104,5 +126,28 @@ const dueLabel = computed(() => {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.chore-card__icon-button {
+  border: none;
+  background: var(--color-surface);
+  border-radius: var(--radius-base);
+  padding: 0.4rem 0.6rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.chore-card__icon-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-surface-alt);
+}
+
+.chore-card__icon-button--danger {
+  color: #dc2626;
 }
 </style>

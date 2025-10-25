@@ -8,7 +8,13 @@
       {{ t('common.state.empty') }}
     </div>
     <div v-else class="chore-list__grid">
-      <ChoreCard v-for="chore in chores" :key="chore.id" :chore="chore" />
+      <ChoreCard
+        v-for="chore in chores"
+        :key="chore.id"
+        :chore="chore"
+        @edit="$emit('edit', chore)"
+        @delete="$emit('delete', chore)"
+      />
     </div>
   </section>
 </template>
@@ -18,6 +24,11 @@ import { useI18n } from 'vue-i18n';
 
 import type { Chore } from '@/entities/chore';
 import { ChoreCard } from '@/entities/chore';
+
+defineEmits<{
+  (e: 'edit', chore: Chore): void;
+  (e: 'delete', chore: Chore): void;
+}>();
 
 defineProps<{
   title: string;

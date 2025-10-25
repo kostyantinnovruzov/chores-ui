@@ -7,7 +7,7 @@
       </div>
       <div class="dashboard__actions">
         <button class="dashboard__action-button" type="button" @click="openCreateModal">
-          {{ t('features.authKid.open') }}
+          {{ t('features.choreCreate.open') }}
         </button>
         <button class="dashboard__logout" type="button" @click="logoutChild">
           {{ t('common.actions.logout') }}
@@ -38,11 +38,23 @@
         {{ t('common.feedback.error') }}
       </div>
       <div v-else class="dashboard__grid">
-        <ChoreListWidget :title="t('pages.dashboard.pendingTitle')" :chores="todayChores" />
-        <ChoreListWidget :title="t('pages.dashboard.upcomingTitle')" :chores="upcomingChores" />
+        <ChoreListWidget
+          :title="t('pages.dashboard.pendingTitle')"
+          :chores="todayChores"
+          @edit="openEditModal"
+          @delete="requestDelete"
+        />
+        <ChoreListWidget
+          :title="t('pages.dashboard.upcomingTitle')"
+          :chores="upcomingChores"
+          @edit="openEditModal"
+          @delete="requestDelete"
+        />
         <ChoreListWidget
           :title="t('pages.dashboard.unscheduledTitle')"
           :chores="unscheduledChores"
+          @edit="openEditModal"
+          @delete="requestDelete"
         />
       </div>
     </section>
@@ -57,27 +69,82 @@
             ×
           </button>
         </header>
-        <ChoreCreateForm :show-header="false" @submitted="closeCreateModal" />
+        <ChoreCreateForm
+          ref="choreFormRef"
+          :show-header="false"
+          :mode="modalMode"
+          :chore-id="editingChore?.id ?? null"
+          @submitted="handleFormSubmitted"
+        />
+      </div>
+    </div>
+  </Teleport>
+  <Teleport to="body">
+    <div v-if="isDeleteModalOpen" class="chore-modal" @click.self="closeDeleteModal">
+      <div class="chore-confirm__dialog" role="dialog" aria-modal="true">
+        <header class="chore-modal__header">
+          <h2>{{ t('features.choreCreate.confirmDeleteTitle') }}</h2>
+        </header>
+        <p class="chore-confirm__message">
+          {{
+            t('features.choreCreate.confirmDeleteMessage', {
+              title: choreToDelete?.title ?? ''
+            })
+          }}
+        </p>
+        <div class="chore-confirm__actions">
+          <button type="button" class="chore-confirm__button" @click="closeDeleteModal">
+            {{ t('common.actions.cancel') }}
+          </button>
+          <button
+            type="button"
+            class="chore-confirm__button chore-confirm__button--danger"
+            :disabled="isDeleting"
+            @click="confirmDelete"
+          >
+            <span v-if="isDeleting">{{ t('common.state.loading') }}</span>
+            <span v-else>{{ t('common.actions.delete') }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import { useChildChoresQuery } from '@/entities/chore';
+import { useChildChoresQuery, useChoreDeleteMutation } from '@/entities/chore';
+import type { Chore } from '@/entities/chore';
 import { ChoreCreateForm } from '@/features/chore-create';
 import { isPast, isToday } from '@/shared/lib/date';
 import { useSessionStore } from '@/shared/session';
 import { ChoreListWidget } from '@/widgets';
 
+type ChoreFormHandles = {
+  setInitialValues: (values: {
+    title?: string;
+    description?: string;
+    category?: string;
+    dueAt?: string;
+    points?: number | null;
+    recurrence?: '' | 'daily' | 'weekly';
+  }) => void;
+  resetForm: () => void;
+};
+
 const { t } = useI18n();
 const router = useRouter();
 const session = useSessionStore();
 const isCreateModalOpen = ref(false);
+const modalMode = ref<'create' | 'edit'>('create');
+const editingChore = ref<Chore | null>(null);
+const choreFormRef = ref<ChoreFormHandles | null>(null);
+const isDeleteModalOpen = ref(false);
+const choreToDelete = ref<Chore | null>(null);
+const deleteMutation = useChoreDeleteMutation();
 
 const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 const headline = computed(() => t('pages.dashboard.pendingTitle'));
@@ -90,11 +157,69 @@ function logoutChild() {
 }
 
 function openCreateModal() {
+  modalMode.value = 'create';
+  editingChore.value = null;
   isCreateModalOpen.value = true;
+  void nextTick(() => {
+    choreFormRef.value?.resetForm();
+  });
 }
 
 function closeCreateModal() {
   isCreateModalOpen.value = false;
+  modalMode.value = 'create';
+  editingChore.value = null;
+  choreFormRef.value?.resetForm();
+}
+
+function openEditModal(chore: Chore) {
+  editingChore.value = chore;
+  modalMode.value = 'edit';
+  isCreateModalOpen.value = true;
+  void nextTick(() => {
+    choreFormRef.value?.setInitialValues({
+      title: chore.title,
+      description: chore.description ?? '',
+      category: chore.category ?? '',
+      dueAt: chore.dueAt ? formatDateTimeLocal(chore.dueAt) : '',
+      points: chore.points,
+      recurrence: chore.recurrence ?? ''
+    });
+  });
+}
+
+function formatDateTimeLocal(value: string) {
+  const date = new Date(value);
+  const pad = (num: number) => String(num).padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+const isDeleting = computed(() => deleteMutation.isPending.value);
+
+function requestDelete(chore: Chore) {
+  choreToDelete.value = chore;
+  isDeleteModalOpen.value = true;
+}
+
+function closeDeleteModal() {
+  isDeleteModalOpen.value = false;
+  choreToDelete.value = null;
+  deleteMutation.reset();
+}
+
+async function confirmDelete() {
+  if (!choreToDelete.value) return;
+  await deleteMutation.mutateAsync(choreToDelete.value.id);
+  closeDeleteModal();
+}
+
+function handleFormSubmitted() {
+  closeCreateModal();
 }
 
 const todayChores = computed(() =>
@@ -209,6 +334,16 @@ const summary = computed(() => ({
   gap: 1.5rem;
 }
 
+.chore-confirm__dialog {
+  width: min(420px, 100%);
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.25);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
 .chore-modal__header {
   display: flex;
   justify-content: space-between;
@@ -228,6 +363,49 @@ const summary = computed(() => ({
   font-size: 1.5rem;
   color: var(--color-text-secondary);
   cursor: pointer;
+}
+
+.chore-confirm__message {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.chore-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.chore-confirm__button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  padding: 0.6rem 1.1rem;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.chore-confirm__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  background: var(--color-surface-alt);
+}
+
+.chore-confirm__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chore-confirm__button--danger {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  border: none;
 }
 
 .sr-only {

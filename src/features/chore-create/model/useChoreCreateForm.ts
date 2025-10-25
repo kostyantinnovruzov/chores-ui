@@ -73,10 +73,18 @@ export function useChoreCreateForm() {
   });
 
   return {
+    form,
     submit,
     isSubmitting: computed(() => mutation.isPending.value),
-    isSuccessful: computed(() => mutation.isSuccess.value),
+    wasSuccessful: computed(() => mutation.isSuccess.value),
     resetMutation: () => mutation.reset(),
+    resetForm: () => form.resetForm({ values: { ...initialValues } }),
+    setInitialValues: (values: Partial<ChoreCreateFormValues>) => {
+      form.setValues({
+        ...form.values,
+        ...values
+      });
+    },
     errors: form.errors,
     models: {
       title: titleModel,

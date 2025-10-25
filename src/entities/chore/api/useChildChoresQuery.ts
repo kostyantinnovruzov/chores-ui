@@ -30,3 +30,28 @@ export function useChoreCreateMutation() {
     }
   });
 }
+
+export function useChoreUpdateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: ChildChoreUpdateRequest }) =>
+      choreApi.update(id, payload),
+    onSuccess: () => {
+      notifySuccess('Chore updated!');
+      return queryClient.invalidateQueries({ queryKey: choreQueryKeys.lists() });
+    }
+  });
+}
+
+export function useChoreDeleteMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => choreApi.delete(id),
+    onSuccess: () => {
+      notifySuccess('Chore deleted!');
+      return queryClient.invalidateQueries({ queryKey: choreQueryKeys.lists() });
+    }
+  });
+}
