@@ -477,6 +477,26 @@ export * from './model/useChoreCreateModel';
 - Favor accessible, headless components (e.g., `Dialog`, `Toggle`) with style wrappers in features/widgets.
 - Maintain theme tokens in `shared/ui/tokens.ts`. Support light/dark via CSS variables.
 
+### Design Versioning & Experiments
+
+- Core version registry lives in `shared/config/design-version.ts`; the active version is resolved by `shared/lib/design/designVersion.ts`.
+- Call `initializeDesignVersion()` once during app bootstrap (`src/app/index.ts`) so `VITE_UI_VERSION`, persisted overrides, or experiment assignments decide which UI version renders.
+- A/B helpers sit in `shared/lib/experiments/` (`resolveExperimentVariant`, `useExperimentVariant`). They persist bucket assignments to `localStorage`.
+- Feature UIs expose stable presenters while concrete markup lives under `variants/v*`. Example:
+  ```
+  features/auth-kid/ui/
+    login-form/
+      KidLoginForm.presenter.vue  // reads design version, delegates to variants
+      variants/
+        v1/KidLoginForm.vue
+    profile-picker/
+      KidProfilePicker.presenter.vue
+      variants/
+        KidProfilePicker.v1.vue
+  ```
+  Adding `v2`/`v3` means creating new variant folders and wiring them in the presenter `variantMap`.
+- Keep presenter contracts identical to avoid page-level churn; toggle the design by switching the global version (`setDesignVersion('v2')`) or feature-flagging via experiments.
+
 ### Accessibility Checklist
 
 - All interactive elements must be reachable via keyboard (`Tab` order, `Enter`/`Space` triggers).

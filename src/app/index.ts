@@ -6,6 +6,7 @@ import AppRoot from './AppRoot.vue';
 import { router } from './router';
 
 import { createI18nInstance } from '@/shared/i18n';
+import { initializeDesignVersion } from '@/shared/lib/design';
 
 import '@/app/styles/index.css';
 
@@ -26,6 +27,8 @@ const vueQueryOptions: VueQueryPluginOptions = {
 };
 
 export function bootstrapApp() {
+  initializeDesignVersion();
+
   const app = createApp(AppRoot);
   const pinia = createPinia();
 

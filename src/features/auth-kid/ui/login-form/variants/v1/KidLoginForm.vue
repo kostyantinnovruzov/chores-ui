@@ -82,10 +82,10 @@
 import { computed, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import EmojiPinKeyboard from './EmojiPinKeyboard.vue';
-import { useKidLoginForm } from '../model/useKidLoginForm';
+import EmojiPinKeyboard from './components/EmojiPinKeyboard.vue';
 
 import type { KidProfile } from '@/entities/kid';
+import { useKidLoginForm } from '@/features/auth-kid/model/useKidLoginForm';
 
 const props = defineProps<{ selectedChild?: KidProfile | null }>();
 

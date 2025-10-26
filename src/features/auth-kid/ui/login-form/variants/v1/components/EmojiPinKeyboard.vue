@@ -67,7 +67,11 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { DIGIT_TO_EMOJI, EMOJI_PIN_ENTRIES, type EmojiPinEntry } from '../lib/emoji-pin-map';
+import {
+  DIGIT_TO_EMOJI,
+  EMOJI_PIN_ENTRIES,
+  type EmojiPinEntry
+} from '@/features/auth-kid/lib/emoji-pin-map';
 
 const props = withDefaults(
   defineProps<{
