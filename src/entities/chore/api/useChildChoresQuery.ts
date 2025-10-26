@@ -3,7 +3,7 @@ import { computed } from 'vue';
 
 import { choreApi } from './chore-api';
 import { choreQueryKeys } from './query-keys';
-import type { ChildChoreCreateRequest } from './types';
+import type { ChildChoreCreateRequest, ChildChoreUpdateRequest } from './types';
 
 import { notifySuccess } from '@/shared/lib/notifications';
 
@@ -51,6 +51,18 @@ export function useChoreDeleteMutation() {
     mutationFn: (id: number) => choreApi.delete(id),
     onSuccess: () => {
       notifySuccess('Chore deleted!');
+      return queryClient.invalidateQueries({ queryKey: choreQueryKeys.lists() });
+    }
+  });
+}
+
+export function useChoreMarkDoneMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => choreApi.markDone(id),
+    onSuccess: () => {
+      notifySuccess('Nice work!');
       return queryClient.invalidateQueries({ queryKey: choreQueryKeys.lists() });
     }
   });

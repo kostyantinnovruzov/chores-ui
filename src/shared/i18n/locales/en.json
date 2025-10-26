@@ -21,7 +21,8 @@
     "chore": {
       "due": "Due",
       "category": "Category",
-      "status": "Status"
+      "status": "Status",
+      "markDone": "Mark chore as done"
     }
   },
   "features": {

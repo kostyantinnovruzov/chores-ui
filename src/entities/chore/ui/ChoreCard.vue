@@ -1,6 +1,15 @@
 <template>
   <article class="chore-card" :data-test-id="`chore-card-${chore.id}`">
     <header class="chore-card__header">
+      <label v-if="showCompletion" class="chore-card__checkbox">
+        <input
+          type="checkbox"
+          :checked="isCompleted"
+          :disabled="isCompleted || disabled"
+          @change="handleToggle($event)"
+        />
+        <span class="sr-only">{{ t('entities.chore.markDone') }}</span>
+      </label>
       <h3 class="chore-card__title">{{ chore.title }}</h3>
       <span class="chore-card__points">{{ chore.points }} pts</span>
     </header>
@@ -56,10 +65,13 @@ import type { Chore } from '../model/chore';
 const emit = defineEmits<{
   (e: 'edit', chore: Chore): void;
   (e: 'delete', chore: Chore): void;
+  (e: 'toggle-complete', payload: { chore: Chore; completed: boolean }): void;
 }>();
 
 const props = defineProps<{
   chore: Chore;
+  showCompletion?: boolean;
+  disabled?: boolean;
 }>();
 
 const { t, d } = useI18n();
@@ -68,6 +80,15 @@ const dueLabel = computed(() => {
   if (!props.chore.dueAt) return null;
   return d(new Date(props.chore.dueAt), { timeStyle: 'short', dateStyle: 'medium' });
 });
+
+const showCompletion = computed(() => props.showCompletion ?? false);
+const disabled = computed(() => props.disabled ?? false);
+const isCompleted = computed(() => props.chore.status === 'completed');
+
+function handleToggle(event: Event) {
+  const target = event.target as HTMLInputElement;
+  emit('toggle-complete', { chore: props.chore, completed: target.checked });
+}
 </script>
 
 <style scoped>
@@ -86,6 +107,18 @@ const dueLabel = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.chore-card__checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.chore-card__checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
 }
 
 .chore-card__title {
@@ -126,6 +159,18 @@ const dueLabel = computed(() => {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .chore-card__icon-button {

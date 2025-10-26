@@ -40,5 +40,9 @@ export const choreApi = {
   },
   async delete(id: number): Promise<void> {
     await http.delete(`chores/${id}`);
+  },
+  async markDone(id: number): Promise<Chore> {
+    const { data } = await http.post<ChildChoreResponse>(`chores/${id}/mark-done`);
+    return mapChore(data);
   }
 };

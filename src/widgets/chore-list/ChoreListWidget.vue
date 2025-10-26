@@ -12,8 +12,11 @@
         v-for="chore in chores"
         :key="chore.id"
         :chore="chore"
+        :show-completion="showCompletion"
+        :disabled="completionDisabled"
         @edit="$emit('edit', chore)"
         @delete="$emit('delete', chore)"
+        @toggle-complete="$emit('toggle-complete', $event)"
       />
     </div>
   </section>
@@ -28,11 +31,14 @@ import { ChoreCard } from '@/entities/chore';
 defineEmits<{
   (e: 'edit', chore: Chore): void;
   (e: 'delete', chore: Chore): void;
+  (e: 'toggle-complete', payload: { chore: Chore; completed: boolean }): void;
 }>();
 
 defineProps<{
   title: string;
   chores: Chore[];
+  showCompletion?: boolean;
+  completionDisabled?: boolean;
 }>();
 
 const { t } = useI18n();

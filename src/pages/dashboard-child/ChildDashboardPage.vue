@@ -41,20 +41,29 @@
         <ChoreListWidget
           :title="t('pages.dashboard.pendingTitle')"
           :chores="todayChores"
+          :show-completion="true"
+          :completion-disabled="isMarkingDone"
           @edit="openEditModal"
           @delete="requestDelete"
+          @toggle-complete="handleToggleComplete"
         />
         <ChoreListWidget
           :title="t('pages.dashboard.upcomingTitle')"
           :chores="upcomingChores"
+          :show-completion="true"
+          :completion-disabled="isMarkingDone"
           @edit="openEditModal"
           @delete="requestDelete"
+          @toggle-complete="handleToggleComplete"
         />
         <ChoreListWidget
           :title="t('pages.dashboard.unscheduledTitle')"
           :chores="unscheduledChores"
+          :show-completion="true"
+          :completion-disabled="isMarkingDone"
           @edit="openEditModal"
           @delete="requestDelete"
+          @toggle-complete="handleToggleComplete"
         />
       </div>
     </section>
@@ -116,7 +125,11 @@ import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import { useChildChoresQuery, useChoreDeleteMutation } from '@/entities/chore';
+import {
+  useChildChoresQuery,
+  useChoreDeleteMutation,
+  useChoreMarkDoneMutation
+} from '@/entities/chore';
 import type { Chore } from '@/entities/chore';
 import { ChoreCreateForm } from '@/features/chore-create';
 import { isPast, isToday } from '@/shared/lib/date';
@@ -145,6 +158,7 @@ const choreFormRef = ref<ChoreFormHandles | null>(null);
 const isDeleteModalOpen = ref(false);
 const choreToDelete = ref<Chore | null>(null);
 const deleteMutation = useChoreDeleteMutation();
+const markDoneMutation = useChoreMarkDoneMutation();
 
 const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 const headline = computed(() => t('pages.dashboard.pendingTitle'));
@@ -200,6 +214,7 @@ function formatDateTimeLocal(value: string) {
 }
 
 const isDeleting = computed(() => deleteMutation.isPending.value);
+const isMarkingDone = computed(() => markDoneMutation.isPending.value);
 
 function requestDelete(chore: Chore) {
   choreToDelete.value = chore;
@@ -220,6 +235,11 @@ async function confirmDelete() {
 
 function handleFormSubmitted() {
   closeCreateModal();
+}
+
+async function handleToggleComplete(event: { chore: Chore; completed: boolean }) {
+  if (!event.completed || event.chore.status === 'completed') return;
+  await markDoneMutation.mutateAsync(event.chore.id);
 }
 
 const todayChores = computed(() =>
