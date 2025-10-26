@@ -42,7 +42,12 @@ import { useI18n } from 'vue-i18n';
 
 import type { KidProfile } from '@/entities/kid';
 
-const props = defineProps<{ kids: KidProfile[]; isLoading?: boolean; isError?: boolean }>();
+const props = defineProps<{
+  kids: KidProfile[];
+  isLoading?: boolean;
+  isError?: boolean;
+  selectedKidId?: KidProfile['id'] | null;
+}>();
 
 defineEmits<{
   (e: 'select', kid: KidProfile): void;

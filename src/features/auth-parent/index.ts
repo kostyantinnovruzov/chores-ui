@@ -1,2 +1,2 @@
-export { default as ParentLoginForm } from './ui/ParentLoginForm.vue';
+export { ParentLoginForm } from './ui';
 export * from './model/useParentLoginForm';

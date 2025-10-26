@@ -1,18 +1,21 @@
-<template>
-  <main class="login-page app-shell">
-    <ParentLoginForm />
-  </main>
-</template>
-
 <script setup lang="ts">
-import { ParentLoginForm } from '@/features/auth-parent';
+import { computed } from 'vue';
+
+import ParentLoginPageV1 from './variants/v1/ParentLoginPage.vue';
+import ParentLoginPageV2 from './variants/v2/ParentLoginPage.vue';
+
+import { useDesignVersion } from '@/shared/lib/design';
+
+const designVersion = useDesignVersion();
+
+const variantMap = {
+  v1: ParentLoginPageV1,
+  v2: ParentLoginPageV2
+} as const;
+
+const activeComponent = computed(() => variantMap[designVersion.value] ?? ParentLoginPageV1);
 </script>
 
-<style scoped>
-.login-page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 2rem;
-}
-</style>
+<template>
+  <component :is="activeComponent" />
+</template>

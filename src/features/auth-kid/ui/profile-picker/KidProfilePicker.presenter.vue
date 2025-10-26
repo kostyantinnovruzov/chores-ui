@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 
 import KidProfilePickerV1 from './variants/KidProfilePicker.v1.vue';
+import KidProfilePickerV2 from './variants/KidProfilePicker.v2.vue';
 
 import type { KidProfile } from '@/entities/kid';
 import { useDesignVersion } from '@/shared/lib/design';
@@ -22,20 +23,19 @@ const emit = defineEmits<{
 const designVersion = useDesignVersion();
 
 const variantMap = {
-  v1: KidProfilePickerV1
+  v1: KidProfilePickerV1,
+  v2: KidProfilePickerV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? KidProfilePickerV1);
 
 const variantProps = computed(() => {
-  switch (designVersion.value) {
-    default:
-      return {
-        kids: props.kids,
-        isLoading: props.isLoading,
-        isError: props.isError
-      };
-  }
+  return {
+    kids: props.kids,
+    isLoading: props.isLoading,
+    isError: props.isError,
+    selectedKidId: props.selectedKidId
+  };
 });
 </script>
 

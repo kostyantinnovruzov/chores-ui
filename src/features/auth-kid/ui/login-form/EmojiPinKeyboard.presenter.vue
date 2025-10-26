@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 
 import EmojiPinKeyboardV1 from './variants/v1/components/EmojiPinKeyboard.vue';
+import EmojiPinKeyboardV2 from './variants/v2/components/EmojiPinKeyboard.vue';
 
 import { useDesignVersion } from '@/shared/lib/design';
 
@@ -28,7 +29,8 @@ const emit = defineEmits<{
 const designVersion = useDesignVersion();
 
 const variantMap = {
-  v1: EmojiPinKeyboardV1
+  v1: EmojiPinKeyboardV1,
+  v2: EmojiPinKeyboardV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? EmojiPinKeyboardV1);

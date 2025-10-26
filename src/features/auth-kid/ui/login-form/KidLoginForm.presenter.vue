@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 
 import KidLoginFormV1 from './variants/v1/KidLoginForm.vue';
+import KidLoginFormV2 from './variants/v2/KidLoginForm.vue';
 
 import type { KidProfile } from '@/entities/kid';
 import { useDesignVersion } from '@/shared/lib/design';
@@ -17,18 +18,16 @@ const emit = defineEmits<{
 const designVersion = useDesignVersion();
 
 const variantMap = {
-  v1: KidLoginFormV1
+  v1: KidLoginFormV1,
+  v2: KidLoginFormV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? KidLoginFormV1);
 
 const variantProps = computed(() => {
-  switch (designVersion.value) {
-    default:
-      return {
-        selectedChild: props.selectedChild
-      };
-  }
+  return {
+    selectedChild: props.selectedChild
+  };
 });
 </script>
 

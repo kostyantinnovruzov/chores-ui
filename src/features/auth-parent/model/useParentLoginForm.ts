@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { parentAuthApi, type ParentLoginRequest } from '../api/parent-auth-api';
 import { parentLoginSchema } from '../lib/schema';
 
+import { getBrowserDeviceName } from '@/shared/lib/device';
 import { notifyError, notifySuccess } from '@/shared/lib/notifications';
 import { useSessionStore } from '@/shared/session';
 
@@ -24,7 +25,7 @@ export function useParentLoginForm() {
     initialValues: {
       email: '',
       password: '',
-      deviceName: 'parent-iphone'
+      deviceName: getBrowserDeviceName()
     }
   });
 
