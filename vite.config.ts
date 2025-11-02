@@ -1,16 +1,81 @@
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import AutoImport from 'unplugin-auto-import/vite';
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
+import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
+import compression from 'vite-plugin-compression';
+import Inspect from 'vite-plugin-inspect';
+import { VitePWA } from 'vite-plugin-pwa';
+
+import postcssConfig from './postcss.config.js';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    AutoImport({
+      imports: ['vue', 'vue-router', '@vueuse/core'],
+      dts: 'src/types/auto-imports.d.ts',
+      vueTemplate: true,
+      eslintrc: {
+        enabled: true,
+        filepath: './.eslintrc-auto-import.json',
+        globalsPropValue: true
+      },
+      resolvers: [NaiveUiResolver()]
+    }),
+    Components({
+      dts: 'src/types/components.d.ts',
+      directoryAsNamespace: true,
+      resolvers: [NaiveUiResolver()]
+    }),
+    compression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      deleteOriginFile: false
+    }),
+    Inspect(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Chores UI',
+        short_name: 'Chores',
+        description: 'Kid chores app',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': resolve(rootDir, 'src')
     }
+  },
+  css: {
+    postcss: postcssConfig
   },
   server: {
     host: true,

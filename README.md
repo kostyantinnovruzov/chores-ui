@@ -586,6 +586,20 @@ test.describe('Smoke', () => {
 
 ## Performance & DX
 
+- `npm run dev` boots Vite 7 with tailored plugins (compression, Inspect, PWA).
+- `npm run prepare` installs Husky git hooks — run once after cloning so `lint-staged` guards commits.
+- Auto Imports (`unplugin-auto-import`) generates `src/types/auto-imports.d.ts` / `components.d.ts` on-demand. Commit these files after the first build so CI gets the same type surface.
+- Naive UI components are auto-registered via resolvers — just use `<NButton />` etc. in templates; tree-shaking happens automatically.
+- Inspect plugin is available at `http://localhost:5174/__inspect/` during dev; PWA assets get generated on `npm run build`.
+- Tailwind + PostCSS pipeline lives in `tailwind.config.js` and `postcss.config.js`; global entry should include the Tailwind directives:
+
+  ```css
+  /* src/app/styles/main.css */
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+  ```
+
 - Lazy load routes and heavy widgets. Prefetch on hover via `router.prefetch`.
 - Use `<Suspense>` for async components; memoize heavy computations with `computed`.
 - Add ESLint rule to prevent large module imports (`no-restricted-imports` listing `lodash` default).
@@ -610,8 +624,9 @@ connect-src 'self' https://api.example.com;
 
 ## Styling
 
-- Option A: Tailwind (`tailwind.config.js` aligned with design tokens). Co-locate component styles via utility classes.
-- Option B: PostCSS modules + CSS variables (`shared/ui/styles/tokens.css`).
+- Tailwind CSS is wired-in by default. Use utility classes for layout/spacing and `@apply` for simple tokens. Keep complex gradients/animations in scoped CSS when necessary.
+- Design tokens still live in `shared/ui/styles`; combine Tailwind utilities with component-scoped styles for bespoke visuals.
+- PostCSS pipeline ships with `postcss-preset-env` + `autoprefixer`; extend via `postcss.config.js`.
 - Global reset (`shared/ui/styles/reset.css`) imported in `app/index.ts`.
 - Use BEM or utility-first pattern consistently. Support dark mode via `class="dark"` toggle or media query.
 
@@ -672,12 +687,13 @@ module.exports = {
 ```json
 {
   "lint-staged": {
-    "*.{ts,tsx,vue}": ["pnpm eslint --fix", "pnpm prettier --write"],
-    "*.{js,json,md,css}": ["pnpm prettier --write"]
+    "*.{js,ts,vue}": ["npm run lint -- --fix"],
+    "*.{css,scss,vue}": ["npm run lint:styles -- --fix"]
   }
 }
 ```
 
+- Manual lint commands: `npm run lint` and `npm run lint:styles`.
 - Conventional commits: `feat(chore): add streak badge`, `fix(auth): handle expired session`.
 
 ## CI (Lightweight)
