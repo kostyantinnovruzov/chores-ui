@@ -1,39 +1,39 @@
 <template>
-  <section class="pin-keyboard" :class="{ 'pin-keyboard--disabled': disabled }">
-    <div class="pin-keyboard__display" aria-live="polite">
+  <section class="keyboard" :class="{ 'keyboard--disabled': disabled }">
+    <div class="keyboard__display" aria-live="polite">
       <div
         v-for="slotIndex in slotCount"
         :key="slotIndex"
-        class="pin-keyboard__slot"
-        :class="{ 'pin-keyboard__slot--filled': Boolean(displayEmojis[slotIndex - 1]) }"
+        class="keyboard__slot"
+        :class="{ 'keyboard__slot--filled': Boolean(displayEmojis[slotIndex - 1]) }"
       >
         <span v-if="displayEmojis[slotIndex - 1]">{{ displayEmojis[slotIndex - 1] }}</span>
       </div>
     </div>
 
-    <p class="pin-keyboard__hint">
+    <p class="keyboard__hint">
       {{ t('features.authKid.pinInstruction', { min: minLength, max: maxLength }) }}
     </p>
 
-    <div class="pin-keyboard__grid">
+    <div class="keyboard__grid">
       <button
         v-for="(entry, index) in emojiEntries"
         :key="entry.value"
         type="button"
-        class="pin-keyboard__key"
-        :disabled="disabled || currentLength >= maxLength"
-        :aria-label="`${entry.emoji}`"
+        class="keyboard__key"
         :style="{ background: buttonGradient(index) }"
+        :disabled="disabled || currentLength >= maxLength"
+        :aria-label="entry.emoji"
         @click="append(entry)"
       >
         {{ entry.emoji }}
       </button>
     </div>
 
-    <div class="pin-keyboard__actions">
+    <div class="keyboard__actions">
       <button
         type="button"
-        class="pin-keyboard__action"
+        class="keyboard__action"
         :disabled="disabled || !currentLength"
         @click="removeLast"
       >
@@ -41,7 +41,7 @@
       </button>
       <button
         type="button"
-        class="pin-keyboard__action"
+        class="keyboard__action"
         :disabled="disabled || !currentLength"
         @click="clear"
       >
@@ -49,7 +49,7 @@
       </button>
       <button
         type="button"
-        class="pin-keyboard__action pin-keyboard__action--primary"
+        class="keyboard__action keyboard__action--primary"
         :disabled="disabled || !isLengthValid"
         @click="complete"
       >
@@ -140,125 +140,54 @@ function buttonGradient(index: number) {
 </script>
 
 <style scoped>
-.pin-keyboard {
-  display: grid;
-  gap: clamp(1.25rem, 3vw, 1.75rem);
+.keyboard {
+  @apply grid gap-6;
 }
 
-.pin-keyboard--disabled {
-  opacity: 0.55;
-  pointer-events: none;
+.keyboard--disabled {
+  @apply pointer-events-none opacity-60;
 }
 
-.pin-keyboard__display {
-  display: flex;
-  justify-content: center;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  padding: 0.85rem;
-  border-radius: 999px;
-  background: rgba(243, 244, 255, 0.92);
-  box-shadow: inset 0 0 0 3px rgba(129, 140, 248, 0.25);
+.keyboard__display {
+  @apply flex items-center justify-center gap-5 rounded-full bg-indigo-50/90 px-6 py-4
+    shadow-inner shadow-indigo-200/50;
 }
 
-.pin-keyboard__slot {
-  width: clamp(60px, 9vw, 70px);
-  height: clamp(60px, 9vw, 70px);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: inset 0 0 0 3px rgba(129, 140, 248, 0.18);
-  display: grid;
-  place-items: center;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
-  color: #4338ca;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+.keyboard__slot {
+  @apply grid h-16 w-16 place-items-center rounded-full border-4 border-indigo-200 bg-white
+    text-3xl font-semibold text-indigo-700 transition-all duration-300;
 }
 
-.pin-keyboard__slot--filled {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 36px rgba(129, 140, 248, 0.25);
+.keyboard__slot--filled {
+  @apply -translate-y-1.5 shadow-lg shadow-indigo-200/60;
 }
 
-.pin-keyboard__hint {
-  margin: 0;
-  text-align: center;
-  font-size: 0.95rem;
-  color: rgba(49, 46, 129, 0.65);
+.keyboard__hint {
+  @apply text-center text-sm font-semibold text-indigo-800/80;
 }
 
-.pin-keyboard__grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(0.7rem, 2.5vw, 1rem);
+.keyboard__grid {
+  @apply grid grid-cols-5 gap-3;
 }
 
-.pin-keyboard__key {
-  aspect-ratio: 1 / 1;
-  border: none;
-  border-radius: 26px;
-  color: #1f1f3d;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
-  box-shadow: 0 18px 35px rgba(79, 70, 229, 0.22);
+.keyboard__key {
+  @apply flex aspect-square items-center justify-center rounded-[26px] text-4xl shadow-lg
+    shadow-indigo-200/60 transition-transform duration-150 hover:-translate-y-1
+    disabled:cursor-not-allowed disabled:opacity-40;
 }
 
-.pin-keyboard__key:hover:not(:disabled) {
-  transform: translateY(-6px);
-  box-shadow: 0 25px 45px rgba(79, 70, 229, 0.3);
-  filter: brightness(1.05);
+.keyboard__actions {
+  @apply grid grid-cols-3 gap-3;
 }
 
-.pin-keyboard__key:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.keyboard__action {
+  @apply rounded-2xl bg-white/90 px-4 py-3 text-sm font-semibold text-indigo-800 shadow-md
+    shadow-indigo-200/60 transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed
+    disabled:opacity-45;
 }
 
-.pin-keyboard__actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.65rem, 2.5vw, 0.9rem);
-}
-
-.pin-keyboard__action {
-  padding: 0.85rem 1rem;
-  border-radius: 18px;
-  border: none;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f1f3d;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
-}
-
-.pin-keyboard__action:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(59, 130, 246, 0.22);
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.pin-keyboard__action:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.pin-keyboard__action--primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-}
-
-.pin-keyboard__action--primary:hover:not(:disabled) {
-  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.28);
+.keyboard__action--primary {
+  @apply bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-indigo-300/60
+    hover:shadow-xl;
 }
 </style>

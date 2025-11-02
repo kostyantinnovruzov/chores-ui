@@ -1,6 +1,8 @@
 import vue from '@vitejs/plugin-vue';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AcceptedPlugin, ProcessOptions } from 'postcss';
 import AutoImport from 'unplugin-auto-import/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
@@ -9,9 +11,10 @@ import compression from 'vite-plugin-compression';
 import Inspect from 'vite-plugin-inspect';
 import { VitePWA } from 'vite-plugin-pwa';
 
-import postcssConfig from './postcss.config.js';
-
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
+const require = createRequire(import.meta.url);
+type PostCSSConfig = ProcessOptions & { plugins?: AcceptedPlugin[] };
+const postcssConfig = require('./postcss.config.cjs') as PostCSSConfig;
 
 export default defineConfig({
   plugins: [

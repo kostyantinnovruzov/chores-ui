@@ -1,16 +1,16 @@
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, type ComputedRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { type KidProfile, useParentKidsQuery } from '@/entities/kid';
 import { useSessionStore } from '@/shared/session';
 
 export interface ChildLoginController {
-  kidProfiles: ReturnType<typeof computed<KidProfile[]>>;
-  isKidsLoading: ReturnType<typeof computed<boolean>>;
-  isKidsError: ReturnType<typeof computed<boolean>>;
-  selectedKid: ReturnType<typeof computed<KidProfile | null>>;
-  parentEmail: ReturnType<typeof computed<string>>;
-  showParentControls: ReturnType<typeof computed<boolean>>;
+  kidProfiles: ComputedRef<KidProfile[]>;
+  isKidsLoading: ComputedRef<boolean>;
+  isKidsError: ComputedRef<boolean>;
+  selectedKid: ComputedRef<KidProfile | null>;
+  parentEmail: ComputedRef<string>;
+  showParentControls: ComputedRef<boolean>;
   handleSelectKid: (kid: KidProfile) => void;
   handleHighlightKid: (kid: KidProfile) => void;
   handleChangeKid: () => void;
@@ -81,11 +81,15 @@ export function useChildLoginController(): ChildLoginController {
     void retryKids();
   }
 
+  const isKidsLoading = computed(() => isKidsLoadingQuery.value);
+  const isKidsError = computed(() => isKidsErrorQuery.value);
+  const selectedKidComputed = computed(() => selectedKid.value);
+
   return {
     kidProfiles,
-    isKidsLoading: computed(() => isKidsLoadingQuery.value),
-    isKidsError: computed(() => isKidsErrorQuery.value),
-    selectedKid: computed(() => selectedKid.value),
+    isKidsLoading,
+    isKidsError,
+    selectedKid: selectedKidComputed,
     parentEmail,
     showParentControls,
     handleSelectKid,

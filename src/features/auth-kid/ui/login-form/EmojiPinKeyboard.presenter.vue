@@ -30,7 +30,8 @@ const designVersion = useDesignVersion();
 
 const variantMap = {
   v1: EmojiPinKeyboardV1,
-  v2: EmojiPinKeyboardV2
+  v2: EmojiPinKeyboardV2,
+  v3: EmojiPinKeyboardV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? EmojiPinKeyboardV1);
@@ -40,7 +41,7 @@ const activeComponent = computed(() => variantMap[designVersion.value] ?? EmojiP
   <component
     :is="activeComponent"
     v-bind="props"
-    @update:model-value="(value) => emit('update:modelValue', value)"
+    @update:model-value="(value: string[]) => emit('update:modelValue', value)"
     @complete="() => emit('complete')"
   />
 </template>

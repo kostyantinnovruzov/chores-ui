@@ -1,15 +1,12 @@
 <template>
-  <main class="parent-login-page app-shell">
-    <div class="parent-login-page__halo parent-login-page__halo--primary" aria-hidden="true"></div>
-    <div
-      class="parent-login-page__halo parent-login-page__halo--secondary"
-      aria-hidden="true"
-    ></div>
+  <main class="page">
+    <div class="halo halo--primary animate-parent-float-slow" aria-hidden="true"></div>
+    <div class="halo halo--secondary animate-parent-float" aria-hidden="true"></div>
 
-    <section class="parent-login-page__content">
-      <header class="parent-login-page__hero">
-        <h1>🌈 Parent Portal</h1>
-        <p>{{ t('features.authParent.subtitle') }}</p>
+    <section class="content">
+      <header class="heading">
+        <h1 class="title">🌈 Parent Portal</h1>
+        <p class="subtitle">{{ t('features.authParent.subtitle') }}</p>
       </header>
 
       <ParentLoginForm />
@@ -26,74 +23,46 @@ const { t } = useI18n();
 </script>
 
 <style scoped>
-.parent-login-page {
-  position: relative;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: clamp(2rem, 6vw, 4rem);
-  background: radial-gradient(circle at top left, #f7d0ff 0%, #c7d2fe 45%, #f6f9ff 100%);
-  overflow: hidden;
+.page {
+  @apply relative grid min-h-screen place-items-center overflow-hidden
+    bg-gradient-to-br from-pink-200 via-indigo-100 to-sky-100 px-6 py-12
+    sm:px-10 lg:px-16;
 }
 
-.parent-login-page__halo {
-  position: absolute;
+.halo {
+  @apply pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full
+    blur-3xl opacity-70;
+
   width: clamp(320px, 45vw, 520px);
   height: clamp(320px, 45vw, 520px);
-  border-radius: 50%;
-  opacity: 0.35;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
 }
 
-.parent-login-page__halo--primary {
-  top: 12%;
-  left: 18%;
-  background: radial-gradient(circle, rgba(249, 168, 212, 0.85), rgba(255, 255, 255, 0.1) 70%);
-  animation: parent-float 14s ease-in-out infinite alternate;
+.halo--primary {
+  @apply -left-24 top-16;
+
+  background: radial-gradient(circle, rgb(249 168 212 / 85%), rgb(255 255 255 / 10%) 70%);
 }
 
-.parent-login-page__halo--secondary {
-  bottom: -14%;
-  right: -10%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.75), rgba(236, 254, 255, 0.2) 70%);
-  animation: parent-float 18s ease-in-out infinite alternate;
+.halo--secondary {
+  @apply -right-28 -bottom-36;
+
+  background: radial-gradient(circle, rgb(59 130 246 / 75%), rgb(236 254 255 / 20%) 70%);
 }
 
-@keyframes parent-float {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    transform: translate(-46%, -54%) scale(1.08);
-  }
+.content {
+  @apply relative z-10 grid w-full max-w-xl gap-10 text-slate-900;
 }
 
-.parent-login-page__content {
-  position: relative;
-  width: min(620px, 100%);
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-  z-index: 1;
+.heading {
+  @apply grid gap-3 text-center;
 }
 
-.parent-login-page__hero {
-  text-align: center;
-  color: #1f1f3d;
-  display: grid;
-  gap: 0.5rem;
+.title {
+  @apply text-4xl font-extrabold tracking-tight
+    drop-shadow-[0_18px_45px_rgba(129,140,248,0.35)];
 }
 
-.parent-login-page__hero h1 {
-  margin: 0;
-  font-size: clamp(2.4rem, 5vw, 3rem);
-  font-weight: 800;
-  text-shadow: 0 18px 45px rgba(129, 140, 248, 0.35);
-}
-
-.parent-login-page__hero p {
-  margin: 0;
-  font-size: clamp(1.05rem, 2.5vw, 1.2rem);
-  color: rgba(31, 31, 61, 0.7);
+.subtitle {
+  @apply text-base text-slate-600;
 }
 </style>

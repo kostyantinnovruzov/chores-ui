@@ -5,6 +5,9 @@ import prettier from '@vue/eslint-config-prettier';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
 export default defineConfigWithVueTs(
+  {
+    ignores: ['dist/**', 'postcss.config.cjs']
+  },
   pluginVue.configs['flat/recommended'],
   vueTsConfigs.recommendedTypeChecked,
   {

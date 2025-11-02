@@ -24,7 +24,8 @@ const designVersion = useDesignVersion();
 
 const variantMap = {
   v1: KidProfilePickerV1,
-  v2: KidProfilePickerV2
+  v2: KidProfilePickerV2,
+  v3: KidProfilePickerV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? KidProfilePickerV1);
@@ -43,8 +44,8 @@ const variantProps = computed(() => {
   <component
     :is="activeComponent"
     v-bind="variantProps"
-    @select="(kid) => emit('select', kid)"
+    @select="(kid: KidProfile) => emit('select', kid)"
     @retry="() => emit('retry')"
-    @highlight="(kid) => emit('highlight', kid)"
+    @highlight="(kid: KidProfile) => emit('highlight', kid)"
   />
 </template>

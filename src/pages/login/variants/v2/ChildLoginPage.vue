@@ -1,15 +1,15 @@
 <template>
-  <main class="child-login app-shell">
-    <div class="child-login__halo child-login__halo--primary" aria-hidden="true"></div>
-    <div class="child-login__halo child-login__halo--secondary" aria-hidden="true"></div>
+  <main class="page">
+    <div class="page__halo page__halo--primary" aria-hidden="true"></div>
+    <div class="page__halo page__halo--secondary" aria-hidden="true"></div>
 
-    <section class="child-login__content">
-      <header class="child-login__hero">
-        <h1 class="child-login__title">🌟 Chores Fun! 🌟</h1>
-        <p class="child-login__subtitle">{{ t('features.authKid.pickProfileSubtitle') }}</p>
+    <section class="page__content">
+      <header class="hero">
+        <h1 class="hero__title">🌟 Chores Fun! 🌟</h1>
+        <p class="hero__subtitle">{{ t('features.authKid.pickProfileSubtitle') }}</p>
       </header>
 
-      <section class="child-login__stage">
+      <section class="stage">
         <KidProfilePicker
           :kids="kidProfiles"
           :is-loading="isKidsLoading"
@@ -21,15 +21,15 @@
         />
 
         <KidLoginForm
-          class="child-login__form"
+          class="stage__form"
           :selected-child="selectedKid"
           @change-child="$emit('change-kid')"
         />
       </section>
 
-      <footer v-if="showParentControls" class="child-login__parent">
+      <footer v-if="showParentControls" class="parent">
         <span>{{ t('features.authParent.loggedInAs', { email: parentEmail }) }}</span>
-        <button type="button" @click="$emit('logout-parent')">
+        <button type="button" class="parent__logout" @click="$emit('logout-parent')">
           {{ t('common.actions.logout') }}
         </button>
       </footer>
@@ -65,116 +65,57 @@ const { t } = useI18n();
 </script>
 
 <style scoped>
-.child-login {
-  position: relative;
-  min-height: 100vh;
-  padding: clamp(2rem, 6vw, 4rem);
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at top left, #f5c4ff 0%, #b8c8ff 45%, #f5f8ff 100%);
-  overflow: hidden;
+.page {
+  @apply relative min-h-screen overflow-hidden bg-gradient-to-br from-purple-300 via-indigo-200 to-sky-200
+    px-6 py-10 sm:px-10 lg:px-16;
 }
 
-.child-login__halo {
-  position: absolute;
-  width: clamp(360px, 50vw, 540px);
-  height: clamp(360px, 50vw, 540px);
-  border-radius: 50%;
-  opacity: 0.35;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  filter: blur(0);
+.page__halo {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+
+  width: 28rem;
+  height: 28rem;
 }
 
-.child-login__halo--primary {
-  top: 10%;
-  left: 15%;
-  background: radial-gradient(circle, rgba(246, 211, 101, 0.85), rgba(255, 255, 255, 0.1) 70%);
-  animation: float-halo 12s ease-in-out infinite alternate;
+.page__halo--primary {
+  @apply -left-24 top-10 bg-gradient-to-br from-amber-200/80 via-rose-200/70 to-transparent;
 }
 
-.child-login__halo--secondary {
-  bottom: -12%;
-  right: -8%;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.75), rgba(236, 254, 255, 0.2) 70%);
-  animation: float-halo 16s ease-in-out infinite alternate;
+.page__halo--secondary {
+  @apply -right-32 -bottom-24 bg-gradient-to-br from-indigo-200/80 via-sky-200/70 to-transparent;
 }
 
-@keyframes float-halo {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    transform: translate(-45%, -55%) scale(1.1);
-  }
+.page__content {
+  @apply relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-12;
 }
 
-.child-login__content {
-  position: relative;
-  width: min(1000px, 100%);
-  display: grid;
-  gap: clamp(2rem, 5vw, 3rem);
-  z-index: 1;
+.hero {
+  @apply text-center text-slate-900;
 }
 
-.child-login__hero {
-  text-align: center;
-  color: #1f1f3d;
-  display: grid;
-  gap: 0.75rem;
+.hero__title {
+  @apply text-4xl font-extrabold tracking-tight drop-shadow-[0_16px_45px_rgba(129,140,248,0.35)];
 }
 
-.child-login__title {
-  margin: 0;
-  font-size: clamp(2.4rem, 5vw, 3.2rem);
-  font-weight: 800;
-  text-shadow: 0 16px 45px rgba(129, 140, 248, 0.35);
+.hero__subtitle {
+  @apply mt-3 text-lg text-slate-600;
 }
 
-.child-login__subtitle {
-  margin: 0;
-  font-size: clamp(1.05rem, 3vw, 1.2rem);
-  color: rgba(31, 31, 61, 0.75);
+.stage {
+  @apply flex flex-col items-center gap-10;
 }
 
-.child-login__stage {
-  display: grid;
-  gap: clamp(1.75rem, 4vw, 2.5rem);
-  justify-items: center;
+.stage__form {
+  @apply w-full;
 }
 
-.child-login__form {
-  width: 100%;
+.parent {
+  @apply mx-auto flex items-center gap-3 rounded-full bg-white/70 px-6 py-3 text-sm font-medium
+    text-slate-700 shadow-lg shadow-indigo-200/40 backdrop-blur;
 }
 
-.child-login__parent {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.5rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 16px 32px rgba(79, 70, 229, 0.2);
-  font-weight: 500;
-  color: rgba(31, 31, 61, 0.75);
-}
-
-.child-login__parent button {
-  border: none;
-  padding: 0.6rem 1.4rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.child-login__parent button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(99, 102, 241, 0.3);
+.parent__logout {
+  @apply rounded-full bg-gradient-to-r from-indigo-400 to-violet-500 px-4 py-2 text-white shadow-md
+    transition hover:-translate-y-0.5 hover:shadow-lg;
 }
 </style>

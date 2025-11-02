@@ -1,17 +1,13 @@
 <template>
-  <section class="parent-login">
-    <header class="parent-login__hero">
-      <h1 class="parent-login__title">
-        {{ t('features.authParent.title') }}
-      </h1>
-      <p class="parent-login__subtitle">
-        {{ t('features.authParent.subtitle') }}
-      </p>
+  <section class="card">
+    <header class="card__heading">
+      <h1 class="card__title">{{ t('features.authParent.title') }}</h1>
+      <p class="card__subtitle">{{ t('features.authParent.subtitle') }}</p>
     </header>
 
-    <form class="parent-login__form" @submit.prevent="submit">
-      <label class="parent-login__field">
-        <span>{{ t('features.authParent.email') }}</span>
+    <form class="card__form" @submit.prevent="submit">
+      <label class="field">
+        <span class="field__label">{{ t('features.authParent.email') }}</span>
         <input
           v-model="email"
           type="email"
@@ -19,12 +15,13 @@
           autocomplete="email"
           placeholder="parent@demo.test"
           required
+          class="field__input"
         />
-        <small v-if="errors.email" class="parent-login__error">{{ errors.email }}</small>
+        <small v-if="errors.email" class="field__error">{{ errors.email }}</small>
       </label>
 
-      <label class="parent-login__field">
-        <span>{{ t('features.authParent.password') }}</span>
+      <label class="field">
+        <span class="field__label">{{ t('features.authParent.password') }}</span>
         <input
           v-model="password"
           type="password"
@@ -32,23 +29,24 @@
           autocomplete="current-password"
           placeholder="••••••••"
           required
+          class="field__input"
         />
-        <small v-if="errors.password" class="parent-login__error">{{ errors.password }}</small>
+        <small v-if="errors.password" class="field__error">{{ errors.password }}</small>
       </label>
 
-      <div class="parent-login__device">
-        <div class="parent-login__device-label">
+      <div class="device">
+        <div class="device__label">
           <span>{{ t('features.authParent.deviceName') }}</span>
           <small>{{ t('features.authKid.deviceHint') }}</small>
         </div>
-        <div class="parent-login__device-chip">
+        <div class="device__chip">
           <span>{{ deviceName }}</span>
         </div>
         <input v-model="deviceName" type="hidden" name="deviceName" />
-        <small v-if="errors.deviceName" class="parent-login__error">{{ errors.deviceName }}</small>
+        <small v-if="errors.deviceName" class="field__error">{{ errors.deviceName }}</small>
       </div>
 
-      <button class="parent-login__submit" :disabled="isSubmitting" type="submit">
+      <button class="cta" :disabled="isSubmitting" type="submit">
         <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
         <span v-else>{{ t('features.authParent.submit') }}</span>
       </button>
@@ -67,131 +65,66 @@ const { email, password, deviceName } = models;
 </script>
 
 <style scoped>
-.parent-login {
-  position: relative;
-  padding: clamp(2rem, 4vw, 2.75rem);
-  border-radius: 40px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.18));
-  backdrop-filter: blur(18px);
-  box-shadow: 0 35px 80px rgba(79, 70, 229, 0.2);
-  width: min(520px, 100%);
-  display: grid;
-  gap: clamp(1.75rem, 3vw, 2.25rem);
+.card {
+  @apply grid gap-8 rounded-[40px] bg-gradient-to-br from-indigo-200/45 via-pink-200/40 to-white/70
+    p-10 text-slate-900 shadow-[0_35px_80px_rgba(79,70,229,0.2)] backdrop-blur-xl;
 }
 
-.parent-login__hero {
-  text-align: center;
-  display: grid;
-  gap: 0.5rem;
-  color: #1f1f3d;
+.card__heading {
+  @apply grid gap-2 text-center;
 }
 
-.parent-login__title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 2.4rem);
-  font-weight: 800;
-  text-shadow: 0 14px 38px rgba(129, 140, 248, 0.35);
+.card__title {
+  @apply text-3xl font-extrabold tracking-tight drop-shadow-[0_14px_38px_rgba(129,140,248,0.35)];
 }
 
-.parent-login__subtitle {
-  margin: 0;
-  font-size: clamp(1rem, 2.2vw, 1.1rem);
-  color: rgba(31, 31, 61, 0.72);
+.card__subtitle {
+  @apply text-base text-slate-600;
 }
 
-.parent-login__form {
-  display: grid;
-  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+.card__form {
+  @apply grid gap-6;
 }
 
-.parent-login__field {
-  display: grid;
-  gap: 0.6rem;
+.field {
+  @apply grid gap-2 text-left;
 }
 
-.parent-login__field span {
-  font-weight: 600;
-  color: #1f1f3d;
+.field__label {
+  @apply text-sm font-semibold text-slate-700;
 }
 
-.parent-login__field input {
-  border: none;
-  border-radius: 18px;
-  padding: 0.95rem 1.2rem;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.25);
-  font: inherit;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+.field__input {
+  @apply rounded-2xl border border-indigo-200/40 bg-white/95 px-4 py-3 text-base
+    shadow-[inset_0_0_0_1px_rgba(129,140,248,0.25)] transition duration-150 ease-out
+    focus:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-indigo-200/60;
 }
 
-.parent-login__field input:focus {
-  outline: none;
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.32);
+.field__error {
+  @apply text-sm font-semibold text-rose-500;
 }
 
-.parent-login__device {
-  display: grid;
-  gap: 0.75rem;
+.device {
+  @apply grid gap-3;
 }
 
-.parent-login__device-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  color: rgba(31, 31, 61, 0.75);
-  font-weight: 600;
+.device__label {
+  @apply flex items-baseline justify-between text-sm font-semibold text-slate-600;
 }
 
-.parent-login__device-label small {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: rgba(31, 31, 61, 0.6);
+.device__label small {
+  @apply text-xs font-medium text-slate-500;
 }
 
-.parent-login__device-chip {
-  padding: 0.85rem 1.2rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.2);
-  font-weight: 600;
-  color: rgba(31, 31, 61, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.device__chip {
+  @apply flex items-center justify-between rounded-2xl border border-indigo-200/40
+    bg-white/90 px-4 py-3 font-semibold text-slate-700 shadow-[inset_0_0_0_1px_rgba(129,140,248,0.2)];
 }
 
-.parent-login__error {
-  color: #ef4444;
-  font-size: 0.9rem;
-}
-
-.parent-login__submit {
-  justify-self: center;
-  width: min(240px, 100%);
-  padding: 0.95rem;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.parent-login__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.parent-login__submit:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(34, 197, 94, 0.35);
+.cta {
+  @apply mx-auto flex w-48 items-center justify-center gap-2 rounded-full bg-gradient-to-r
+    from-emerald-400 to-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-lg
+    shadow-emerald-300/50 transition hover:-translate-y-0.5 hover:shadow-xl
+    disabled:cursor-not-allowed disabled:opacity-60;
 }
 </style>

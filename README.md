@@ -813,6 +813,50 @@ export default defineConfig({
   }
 });
 ```
+## Styling
+
+Use **Vue Single File Components (SFC)** with a clear separation of template, script, and style sections.  
+Prefer a **clean template** (short semantic class names) and apply Tailwind utilities inside `<style scoped>` using `@apply`.
+
+### Component conventions
+
+- Templates must stay minimal and readable.
+- Use short, meaningful class names (`page`, `card`, `title`, `subtitle`, etc.).
+- Define all Tailwind utility styles inside `<style scoped>` via `@apply`.
+- Avoid long lists of Tailwind classes directly in the template.
+- Complex gradients or animations should live in scoped CSS or shared styles.
+
+**Example:**
+```vue
+<template>
+  <main class="page">
+    <section class="card">
+      <header class="heading">
+        <h1 class="title">Parent Portal</h1>
+        <p class="subtitle">{{ t('features.authParent.subtitle') }}</p>
+      </header>
+      <ParentLoginForm />
+    </section>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { ParentLoginForm } from '@/features/auth-parent'
+const { t } = useI18n()
+</script>
+
+<style scoped>
+.page {
+  @apply relative grid min-h-screen place-items-center overflow-hidden
+         bg-gradient-to-br from-pink-200 via-indigo-100 to-sky-100
+         px-6 py-12 sm:px-10 lg:px-16;
+}
+.card { @apply relative z-10 grid w-full max-w-xl gap-10 text-slate-900; }
+.heading { @apply grid gap-3 text-center; }
+.title { @apply text-4xl font-extrabold tracking-tight drop-shadow-[0_18px_45px_rgba(129,140,248,0.35)]; }
+.subtitle { @apply text-base text-slate-600; }
+</style>
 
 ## Checklists
 

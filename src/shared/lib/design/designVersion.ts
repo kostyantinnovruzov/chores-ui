@@ -16,12 +16,16 @@ interface InitializeOptions {
 
 const currentDesignVersion = ref<DesignVersion>(DEFAULT_DESIGN_VERSION);
 
+const LEGACY_VERSION_MAP: Partial<Record<DesignVersion, DesignVersion>> = {
+  v1: 'v2'
+};
+
 function normalizeVersion(candidate?: string | null): DesignVersion | null {
   if (!candidate) return null;
   const normalized = candidate.trim().toLowerCase();
-  return DESIGN_VERSIONS.includes(normalized as DesignVersion)
-    ? (normalized as DesignVersion)
-    : null;
+  if (!DESIGN_VERSIONS.includes(normalized as DesignVersion)) return null;
+  const mapped = LEGACY_VERSION_MAP[normalized as DesignVersion] ?? (normalized as DesignVersion);
+  return mapped;
 }
 
 function resolveFromStorage(storage?: Storage): DesignVersion | null {
@@ -58,7 +62,7 @@ export function initializeDesignVersion(options: InitializeOptions = {}) {
 
   const stored = resolveFromStorage(storage);
   if (stored) {
-    setDesignVersion(stored, { storage: undefined });
+    setDesignVersion(stored, { storage });
     return;
   }
 

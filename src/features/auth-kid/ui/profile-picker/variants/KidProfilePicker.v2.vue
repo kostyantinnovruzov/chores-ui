@@ -3,19 +3,22 @@
     <div v-if="isLoading" class="carousel__state">
       {{ t('common.state.loading') }}
     </div>
+
     <div v-else-if="isError" class="carousel__state carousel__state--error">
       <span>{{ t('common.feedback.error') }}</span>
       <button type="button" class="carousel__retry" @click="$emit('retry')">
         {{ t('common.actions.retry') }}
       </button>
     </div>
+
     <div v-else-if="!kids.length" class="carousel__state">
       {{ t('features.authKid.noProfiles') }}
     </div>
-    <div v-else class="carousel__viewport">
+
+    <div v-else class="carousel__stage">
       <button
         type="button"
-        class="carousel__nav carousel__nav--prev"
+        class="carousel__nav"
         :disabled="controlsDisabled"
         aria-label="Previous profile"
         @click="handlePrev"
@@ -29,31 +32,30 @@
           :key="entry.kid.id"
           type="button"
           class="carousel__card"
-          :class="cardClass(entry.role)"
+          :class="cardClass(entry)"
           :style="cardStyle(entry)"
           @click="handleCardClick(entry)"
         >
-          <div class="carousel__avatar">
+          <span class="carousel__glow" />
+
+          <span class="carousel__avatar">
             <img
               v-if="entry.kid.avatarPath"
               :alt="entry.kid.nickname"
               :src="entry.kid.avatarPath"
             />
             <span v-else>{{ initials(entry.kid.nickname) }}</span>
-          </div>
-          <strong class="carousel__name">{{ entry.kid.nickname }}</strong>
-          <p class="carousel__hint">
-            {{ entry.kid.passcodeHint || t('features.authKid.enterPasscodeSubtitle') }}
-          </p>
-          <span v-if="entry.role === 'active'" class="carousel__cta">
-            {{ t('features.authKid.submit') }}
           </span>
+
+          <strong class="carousel__name">
+            {{ entry.kid.nickname }}
+          </strong>
         </button>
       </div>
 
       <button
         type="button"
-        class="carousel__nav carousel__nav--next"
+        class="carousel__nav"
         :disabled="controlsDisabled"
         aria-label="Next profile"
         @click="handleNext"
@@ -66,6 +68,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from 'vue';
+import type { CSSProperties } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import type { KidProfile } from '@/entities/kid';
@@ -91,6 +94,7 @@ type VisibleEntry = {
   kid: KidProfile;
   index: number;
   role: VisibleRole;
+  offset: number;
 };
 
 const gradientPalette = [
@@ -106,7 +110,6 @@ const currentIndex = ref(0);
 
 const kidCount = computed(() => kids.value.length);
 const controlsDisabled = computed(() => kidCount.value <= 1);
-
 const activeKid = computed(() => kids.value[currentIndex.value] ?? null);
 
 const visibleKids = computed<VisibleEntry[]>(() => {
@@ -118,11 +121,11 @@ const visibleKids = computed<VisibleEntry[]>(() => {
 
   return offsets.map((offset) => {
     const index = normalizeIndex(currentIndex.value + offset, length);
-    const kid = list[index];
+    const kid = list[index]!;
     let role: VisibleRole = 'active';
     if (offset < 0) role = 'prev';
     if (offset > 0) role = 'next';
-    return { kid, index, role };
+    return { kid, index, role, offset };
   });
 });
 
@@ -145,8 +148,7 @@ watch(
   selectedKidId,
   (next) => {
     if (next == null) return;
-    const key = String(next);
-    const index = kids.value.findIndex((kid) => String(kid.id) === key);
+    const index = kids.value.findIndex((kid) => String(kid.id) === String(next));
     if (index >= 0) {
       currentIndex.value = index;
     }
@@ -180,19 +182,30 @@ function handleCardClick(entry: VisibleEntry) {
   }
 }
 
-function cardClass(role: VisibleRole) {
+function cardClass(entry: VisibleEntry) {
   return {
-    'carousel__card--active': role === 'active',
-    'carousel__card--side': role !== 'active',
-    'carousel__card--side-prev': role === 'prev',
-    'carousel__card--side-next': role === 'next'
+    'carousel__card--active': entry.role === 'active',
+    'carousel__card--neighbour': entry.role !== 'active'
   };
 }
 
-function cardStyle(entry: VisibleEntry) {
-  const paletteIndex = entry.index % gradientPalette.length;
+function cardStyle(entry: VisibleEntry): CSSProperties {
+  const paletteIndex = Math.abs(entry.index % gradientPalette.length);
+  const isActive = entry.role === 'active';
+  const translateX = entry.offset * 240;
+  const translateY = isActive ? -24 : 28;
+  const scale = isActive ? 1 : 0.72;
+  const opacity = kidCount.value <= 1 ? 1 : isActive ? 1 : kidCount.value === 2 ? 0.7 : 0.45;
+  const pointerEvents: CSSProperties['pointerEvents'] =
+    Math.abs(entry.offset) > 1 ? 'none' : 'auto';
+
   return {
-    background: gradientPalette[Math.abs(paletteIndex)]
+    background: gradientPalette[paletteIndex],
+    transform: `translate(-50%, -50%) translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
+    opacity,
+    filter: isActive ? 'none' : 'blur(2px)',
+    pointerEvents,
+    zIndex: isActive ? 10 : 1
   };
 }
 
@@ -213,166 +226,71 @@ function normalizeIndex(target: number, length: number) {
 
 <style scoped>
 .carousel {
-  position: relative;
-  display: grid;
-  gap: 2rem;
+  @apply flex w-full flex-col gap-8;
 }
 
 .carousel__state {
-  display: grid;
-  gap: 1rem;
-  justify-items: center;
-  color: rgba(31, 31, 61, 0.75);
-  font-weight: 600;
+  @apply flex flex-col items-center justify-center gap-4 rounded-3xl bg-white/70 p-10
+    font-semibold text-indigo-900 shadow-lg shadow-indigo-200/50 backdrop-blur;
 }
 
 .carousel__state--error span {
-  color: #ef4444;
+  @apply text-rose-500;
 }
 
 .carousel__retry {
-  padding: 0.65rem 1.35rem;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, #f97316, #f43f5e);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  @apply rounded-full bg-gradient-to-r from-orange-400 to-rose-500 px-6 py-2 text-white shadow-lg
+    transition hover:-translate-y-0.5 hover:shadow-xl;
 }
 
-.carousel__retry:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(244, 63, 94, 0.32);
-}
-
-.carousel__viewport {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: clamp(1rem, 4vw, 2rem);
-  align-items: center;
+.carousel__stage {
+  @apply relative flex items-center justify-center gap-6;
 }
 
 .carousel__nav {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.25);
-  font-size: 2rem;
-  color: #312e81;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.carousel__nav:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 24px 48px rgba(79, 70, 229, 0.35);
-}
-
-.carousel__nav:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  @apply flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-3xl text-indigo-900
+    shadow-xl shadow-indigo-300/50 transition hover:-translate-y-0.5 hover:scale-105 hover:bg-white
+    disabled:cursor-not-allowed disabled:opacity-40;
 }
 
 .carousel__deck {
-  position: relative;
-  min-height: clamp(240px, 28vw, 320px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(1rem, 5vw, 2.25rem);
+  @apply relative h-[18.5rem] w-full max-w-[48rem];
 }
 
 .carousel__card {
-  position: relative;
-  width: clamp(220px, 25vw, 260px);
-  border: none;
-  border-radius: 32px;
-  padding: clamp(2rem, 4vw, 2.5rem);
-  display: grid;
-  gap: 1.25rem;
-  justify-items: center;
-  cursor: pointer;
-  color: #fff;
-  transition:
-    transform 0.35s ease,
-    filter 0.35s ease,
-    opacity 0.35s ease,
-    box-shadow 0.35s ease;
-  transform: translateY(45px) scale(0.88);
-  opacity: 0.45;
-  filter: saturate(0.8);
-  box-shadow: 0 20px 50px rgba(59, 130, 246, 0.2);
+  @apply absolute flex h-[18.5rem] w-[16.5rem] -translate-x-1/2 -translate-y-1/2 flex-col
+    items-center justify-center gap-6 rounded-[36px] border-4 border-white/90 px-10 text-white
+    shadow-[0_32px_72px_rgba(79,70,229,0.25)] transition-all duration-500
+    ease-[cubic-bezier(0.22,0.61,0.36,1)] focus-visible:outline-none focus-visible:ring-4
+    focus-visible:ring-white/70;
 }
 
 .carousel__card--active {
-  transform: translateY(-18px) scale(1.05);
-  opacity: 1;
-  filter: saturate(1.05);
-  box-shadow: 0 40px 80px rgba(236, 72, 153, 0.3);
+  @apply shadow-[0_40px_90px_rgba(236,72,153,0.32)];
 }
 
-.carousel__card--side-prev {
-  transform: translate(-12px, 24px) scale(0.92);
+.carousel__card--neighbour {
+  @apply shadow-[0_24px_60px_rgba(59,130,246,0.22)];
 }
 
-.carousel__card--side-next {
-  transform: translate(12px, 24px) scale(0.92);
+.carousel__glow {
+  @apply absolute inset-0 rounded-[36px] bg-white/20 opacity-0 transition-opacity duration-500;
+}
+
+.carousel__card--active .carousel__glow {
+  @apply opacity-40;
 }
 
 .carousel__avatar {
-  width: clamp(110px, 14vw, 130px);
-  height: clamp(110px, 14vw, 130px);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.2);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.35);
+  @apply relative grid h-32 w-32 place-items-center rounded-3xl bg-white/20 text-5xl font-extrabold
+    shadow-[inset_0_0_0_6px_rgba(255,255,255,0.35)];
 }
 
 .carousel__avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.carousel__avatar span {
-  font-size: clamp(3rem, 5vw, 3.5rem);
-  font-weight: 800;
+  @apply h-full w-full rounded-3xl object-cover;
 }
 
 .carousel__name {
-  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
-  font-weight: 800;
-  text-align: center;
-}
-
-.carousel__hint {
-  margin: 0;
-  text-align: center;
-  font-size: 0.95rem;
-  opacity: 0.85;
-}
-
-.carousel__cta {
-  padding: 0.45rem 1.2rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  color: #4338ca;
-  font-weight: 700;
-  font-size: 0.875rem;
-  box-shadow: 0 16px 32px rgba(255, 255, 255, 0.2);
+  @apply text-center text-2xl font-extrabold tracking-wide drop-shadow-lg;
 }
 </style>

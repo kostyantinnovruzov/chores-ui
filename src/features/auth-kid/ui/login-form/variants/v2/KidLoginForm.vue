@@ -1,15 +1,16 @@
 <template>
-  <section class="kid-login-v2">
-    <div class="kid-login-v2__profile" :class="{ 'kid-login-v2__profile--empty': !selectedChild }">
+  <section class="login">
+    <div class="profile" :class="{ 'profile--empty': !selectedChild }">
       <button
         v-if="selectedChild"
         type="button"
-        class="kid-login-v2__change"
+        class="profile__change"
         @click="$emit('change-child')"
       >
         {{ t('features.authKid.changeProfile') }}
       </button>
-      <div class="kid-login-v2__avatar">
+
+      <div class="profile__avatar">
         <template v-if="selectedChild?.avatarPath">
           <img :alt="selectedChild.nickname" :src="selectedChild.avatarPath" />
         </template>
@@ -18,45 +19,53 @@
         </template>
       </div>
 
-      <h2 class="kid-login-v2__headline">
-        {{
-          selectedChild
-            ? t('features.authKid.enterPasscodeTitle', { name: selectedChild.nickname })
-            : t('features.authKid.title')
-        }}
-      </h2>
-      <p class="kid-login-v2__subtitle">
-        {{
-          selectedChild
-            ? selectedChild.passcodeHint || t('features.authKid.enterPasscodeSubtitle')
-            : t('features.authKid.subtitle')
-        }}
-      </p>
+      <div class="profile__text">
+        <h2 class="profile__title">
+          {{
+            selectedChild
+              ? t('features.authKid.enterPasscodeTitle', { name: selectedChild.nickname })
+              : t('features.authKid.title')
+          }}
+        </h2>
+        <p class="profile__subtitle">
+          {{
+            selectedChild
+              ? selectedChild.passcodeHint || t('features.authKid.enterPasscodeSubtitle')
+              : t('features.authKid.subtitle')
+          }}
+        </p>
+      </div>
     </div>
 
-    <form class="kid-login-v2__form" @submit.prevent="submit">
-      <div class="kid-login-v2__pinpad" :class="{ 'kid-login-v2__pinpad--shake': isShaking }">
-        <EmojiPinKeyboard
-          v-model="passcodeValue"
-          :disabled="isSubmitting || !selectedChild"
-          :min-length="4"
-          :max-length="6"
-          @complete="submit()"
-        />
-      </div>
-      <p v-if="errors.passcode" class="kid-login-v2__error">
-        {{ errors.passcode }}
-      </p>
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-6"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-6"
+    >
+      <form v-if="selectedChild" class="pin" @submit.prevent="submit">
+        <div class="pin__panel" :class="{ 'animate-kid-shake': isShaking }">
+          <EmojiPinKeyboard
+            v-model="passcodeValue"
+            :disabled="isSubmitting"
+            :min-length="4"
+            :max-length="4"
+            @complete="submit()"
+          />
+        </div>
 
-      <button
-        class="kid-login-v2__submit"
-        :disabled="isSubmitDisabled || !selectedChild"
-        type="submit"
-      >
-        <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
-        <span v-else>{{ t('features.authKid.submit') }}</span>
-      </button>
-    </form>
+        <p v-if="passcodeError" class="pin__error">
+          {{ passcodeError }}
+        </p>
+
+        <button class="pin__cta" :disabled="isSubmitDisabled" type="submit">
+          <span v-if="isSubmitting">{{ t('common.state.loading') }}</span>
+          <span v-else>{{ t('features.authKid.submit') }}</span>
+        </button>
+      </form>
+    </Transition>
   </section>
 </template>
 
@@ -95,6 +104,7 @@ const isSubmitDisabled = computed(
 
 const isShaking = ref(false);
 let shakeTimer: number | undefined;
+const passcodeError = computed(() => errors.value.passcode);
 
 watch(
   selectedChild,
@@ -108,17 +118,14 @@ watch(
   { immediate: true }
 );
 
-watch(
-  () => errors.passcode,
-  (message) => {
-    if (!message) return;
-    window.clearTimeout(shakeTimer);
-    isShaking.value = true;
-    shakeTimer = window.setTimeout(() => {
-      isShaking.value = false;
-    }, 650);
-  }
-);
+watch(passcodeError, (message) => {
+  if (!message) return;
+  window.clearTimeout(shakeTimer);
+  isShaking.value = true;
+  shakeTimer = window.setTimeout(() => {
+    isShaking.value = false;
+  }, 650);
+});
 
 onBeforeUnmount(() => {
   window.clearTimeout(shakeTimer);
@@ -137,150 +144,61 @@ function initials(name: string) {
 </script>
 
 <style scoped>
-.kid-login-v2 {
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-  width: min(960px, 100%);
+.login {
+  @apply grid w-full max-w-4xl gap-10;
 }
 
-.kid-login-v2__profile {
-  position: relative;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border-radius: 36px;
-  background: linear-gradient(135deg, rgba(253, 186, 116, 0.85), rgba(244, 114, 182, 0.85));
-  color: #fff;
-  display: grid;
-  justify-items: center;
-  gap: clamp(1rem, 3vw, 1.5rem);
-  box-shadow: 0 30px 70px rgba(244, 114, 182, 0.25);
+.profile {
+  @apply relative overflow-hidden rounded-[36px] p-10 text-white shadow-[0_32px_80px_rgba(244,114,182,0.28)]
+    transition-colors bg-gradient-to-br from-orange-300/90 via-pink-400/90 to-indigo-400/80
+    grid gap-6 justify-items-center;
 }
 
-.kid-login-v2__profile--empty {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.75), rgba(129, 140, 248, 0.85));
+.profile--empty {
+  @apply bg-gradient-to-br from-indigo-400/85 via-violet-400/80 to-sky-400/75;
 }
 
-.kid-login-v2__change {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  border: none;
-  padding: 0.55rem 1.4rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  color: #4338ca;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+.profile__change {
+  @apply absolute right-6 top-6 rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-indigo-700
+    shadow-lg shadow-white/40 transition hover:-translate-y-0.5 hover:shadow-xl;
 }
 
-.kid-login-v2__change:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(255, 255, 255, 0.35);
+.profile__avatar {
+  @apply grid h-32 w-32 place-items-center rounded-[32px] bg-white/25 text-5xl font-extrabold
+    shadow-[inset_0_0_0_6px_rgba(255,255,255,0.35)];
 }
 
-.kid-login-v2__avatar {
-  width: clamp(110px, 14vw, 140px);
-  height: clamp(110px, 14vw, 140px);
-  border-radius: 32px;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.35);
-  overflow: hidden;
+.profile__avatar img {
+  @apply h-full w-full rounded-[32px] object-cover;
 }
 
-.kid-login-v2__avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.profile__text {
+  @apply grid gap-3 text-center;
 }
 
-.kid-login-v2__avatar span {
-  font-size: clamp(3rem, 5vw, 3.6rem);
-  font-weight: 800;
+.profile__title {
+  @apply text-3xl font-extrabold tracking-wide drop-shadow-[0_18px_40px_rgba(120,53,15,0.35)];
 }
 
-.kid-login-v2__headline {
-  margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
-  font-weight: 800;
-  text-align: center;
-  text-shadow: 0 18px 40px rgba(120, 53, 15, 0.35);
+.profile__subtitle {
+  @apply text-base text-white/90;
 }
 
-.kid-login-v2__subtitle {
-  margin: 0;
-  font-size: clamp(1rem, 2.2vw, 1.1rem);
-  text-align: center;
-  opacity: 0.9;
+.pin {
+  @apply grid gap-6 rounded-[32px] bg-white/90 p-8 shadow-[0_38px_80px_rgba(79,70,229,0.22)] backdrop-blur;
 }
 
-.kid-login-v2__form {
-  display: grid;
-  gap: clamp(1.5rem, 4vw, 2rem);
-  align-items: start;
+.pin__panel {
+  @apply rounded-[28px] border-4 border-white bg-white/70 p-6 shadow-[0_24px_60px_rgba(99,102,241,0.18)] transition;
 }
 
-.kid-login-v2__pinpad {
-  padding: clamp(1.5rem, 4vw, 2rem);
-  border-radius: 32px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 28px 60px rgba(79, 70, 229, 0.22);
-  transition: transform 0.25s ease;
+.pin__error {
+  @apply text-center text-sm font-semibold text-rose-500;
 }
 
-.kid-login-v2__pinpad--shake {
-  animation: kid-login-shake 0.6s ease;
-}
-
-@keyframes kid-login-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  20%,
-  60% {
-    transform: translateX(-12px);
-  }
-  40%,
-  80% {
-    transform: translateX(12px);
-  }
-}
-
-.kid-login-v2__error {
-  margin: 0;
-  color: #ef4444;
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.kid-login-v2__submit {
-  justify-self: center;
-  width: min(320px, 100%);
-  padding: 1rem;
-  border-radius: 999px;
-  border: none;
-  font-weight: 700;
-  font-size: 1rem;
-  color: #fff;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.kid-login-v2__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.kid-login-v2__submit:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(34, 197, 94, 0.35);
+.pin__cta {
+  @apply mx-auto flex w-48 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-400
+    to-emerald-600 px-6 py-3 text-white shadow-lg shadow-emerald-300/50 transition hover:-translate-y-0.5
+    hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60;
 }
 </style>

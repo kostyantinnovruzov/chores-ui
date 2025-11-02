@@ -19,7 +19,8 @@ const designVersion = useDesignVersion();
 
 const variantMap = {
   v1: KidLoginFormV1,
-  v2: KidLoginFormV2
+  v2: KidLoginFormV2,
+  v3: KidLoginFormV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? KidLoginFormV1);

@@ -27,7 +27,8 @@ const selectedKidId = computed(() => selectedKid.value?.id ?? null);
 
 const variantMap = {
   v1: ChildLoginPageV1,
-  v2: ChildLoginPageV2
+  v2: ChildLoginPageV2,
+  v3: ChildLoginPageV2
 } as const;
 
 const activeComponent = computed(() => variantMap[designVersion.value] ?? ChildLoginPageV1);

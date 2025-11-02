@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { useParentLoginForm } from '../model/useParentLoginForm';
+import { useParentLoginForm } from '@/features/auth-parent/model/useParentLoginForm';
 
 const { t } = useI18n();
 const { submit, isSubmitting, errors, models } = useParentLoginForm();
@@ -69,7 +69,7 @@ const { email, password, deviceName } = models;
   padding: 2.5rem 2rem;
   border-radius: 24px;
   background: var(--color-surface-alt);
-  box-shadow: 0 20px 45px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 20px 45px rgb(79 70 229 / 15%);
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
@@ -134,7 +134,7 @@ button:disabled {
 
 button:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 10px 22px rgb(99 102 241 / 25%);
 }
 
 .login-card__error {
