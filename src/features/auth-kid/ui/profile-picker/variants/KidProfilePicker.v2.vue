@@ -18,7 +18,7 @@
     <div v-else class="carousel__stage">
       <button
         type="button"
-        class="carousel__nav"
+        class="carousel__nav carousel__nav--prev"
         :disabled="controlsDisabled"
         aria-label="Previous profile"
         @click="handlePrev"
@@ -55,7 +55,7 @@
 
       <button
         type="button"
-        class="carousel__nav"
+        class="carousel__nav carousel__nav--next"
         :disabled="controlsDisabled"
         aria-label="Next profile"
         @click="handleNext"
@@ -228,7 +228,7 @@ function normalizeIndex(target: number, length: number) {
 
 <style scoped>
 .carousel {
-  @apply flex w-full flex-col gap-8;
+  @apply mx-auto flex w-full max-w-[60rem] flex-col items-center gap-8;
 }
 
 .carousel__state {
@@ -246,19 +246,27 @@ function normalizeIndex(target: number, length: number) {
 }
 
 .carousel__stage {
-  @apply relative flex items-center justify-center gap-6;
+  @apply relative mx-auto grid h-[20rem] w-full max-w-[52rem] place-items-center;
 }
 
 .carousel__nav {
-  @apply flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-3xl text-indigo-900
-    shadow-xl shadow-indigo-300/50 transition hover:-translate-y-0.5 hover:scale-105 hover:bg-white
-    disabled:cursor-not-allowed disabled:opacity-40;
+  @apply absolute top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full
+    bg-white/85 text-3xl text-indigo-900 shadow-xl shadow-indigo-300/50 transition hover:-translate-y-0.5
+    hover:scale-105 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40;
 
   z-index: 20;
 }
 
+.carousel__nav--prev {
+  @apply left-0;
+}
+
+.carousel__nav--next {
+  @apply right-0;
+}
+
 .carousel__deck {
-  @apply relative h-[18.5rem] w-full max-w-[48rem];
+  @apply relative mx-auto h-[18.5rem] w-full max-w-[48rem];
 }
 
 .carousel__card {

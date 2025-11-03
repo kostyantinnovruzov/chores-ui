@@ -129,7 +129,7 @@ function buttonGradient(index: number) {
 
 <style scoped>
 .keyboard {
-  @apply grid gap-6;
+  @apply grid gap-6 justify-items-center;
 }
 
 .keyboard--disabled {
@@ -137,13 +137,15 @@ function buttonGradient(index: number) {
 }
 
 .keyboard__display {
-  @apply flex items-center justify-center gap-5 rounded-full bg-indigo-50/90 px-6 py-4
-    shadow-inner shadow-indigo-200/50;
+  @apply mx-auto flex w-full max-w-[19rem] items-center justify-center rounded-full
+    bg-indigo-50/90 px-3 py-2 shadow-inner shadow-indigo-200/50 gap-2 sm:max-w-[22rem]
+    sm:px-4 sm:py-3 sm:gap-3 md:max-w-[26rem] md:px-6 md:py-4 md:gap-4;
 }
 
 .keyboard__slot {
-  @apply grid h-16 w-16 place-items-center rounded-full border-4 border-indigo-200 bg-white
-    text-3xl font-semibold text-indigo-700 transition-all duration-300;
+  @apply grid place-items-center rounded-full border-4 border-indigo-200 bg-white
+    text-indigo-700 transition-all duration-300 h-9 w-9 text-lg sm:h-10 sm:w-10 sm:text-xl
+    md:h-12 md:w-12 md:text-2xl;
 }
 
 .keyboard__slot--filled {
@@ -155,22 +157,25 @@ function buttonGradient(index: number) {
 }
 
 .keyboard__grid {
-  @apply grid grid-cols-5 gap-3;
+  @apply mx-auto grid w-full max-w-[19rem] grid-cols-3 justify-items-center justify-center gap-2
+    sm:max-w-[22rem] sm:grid-cols-4 md:max-w-[26rem] md:grid-cols-5 md:gap-3;
 }
 
 .keyboard__key {
-  @apply flex aspect-square items-center justify-center rounded-[26px] text-4xl shadow-lg
-    shadow-indigo-200/60 transition-transform duration-150 hover:-translate-y-1
-    disabled:cursor-not-allowed disabled:opacity-40;
+  @apply flex aspect-square w-full max-w-[4.5rem] items-center justify-center rounded-[16px]
+    text-[1.35rem] shadow-lg shadow-indigo-200/60 transition-transform duration-150
+    hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 sm:max-w-[4.75rem]
+    sm:text-[1.45rem] md:max-w-[5rem] md:text-[1.6rem];
 }
 
 .keyboard__actions {
-  @apply grid grid-cols-2 gap-3;
+  @apply mx-auto grid w-full max-w-[19rem] grid-cols-2 gap-2 sm:max-w-[22rem]
+    sm:gap-3 md:max-w-[26rem];
 }
 
 .keyboard__action {
-  @apply rounded-2xl bg-white/90 px-4 py-3 text-sm font-semibold text-indigo-800 shadow-md
+  @apply rounded-2xl bg-white/90 px-3 py-2 text-sm font-semibold text-indigo-800 shadow-md
     shadow-indigo-200/60 transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed
-    disabled:opacity-45;
+    disabled:opacity-45 sm:px-4 sm:py-3;
 }
 </style>
