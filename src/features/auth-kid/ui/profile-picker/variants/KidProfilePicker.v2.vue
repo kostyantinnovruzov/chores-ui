@@ -251,8 +251,8 @@ function normalizeIndex(target: number, length: number) {
 
 .carousel__nav {
   @apply absolute top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full
-    bg-white/85 text-3xl text-indigo-900 shadow-xl shadow-indigo-300/50 transition hover:-translate-y-0.5
-    hover:scale-105 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40;
+    bg-white/85 text-3xl text-indigo-900 shadow-xl shadow-indigo-300/50 transition-colors
+    hover:bg-white active:scale-95 active:bg-white disabled:cursor-not-allowed disabled:opacity-40;
 
   z-index: 20;
 }
