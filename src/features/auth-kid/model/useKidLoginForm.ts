@@ -51,16 +51,13 @@ export function useKidLoginForm() {
         }
       });
 
-      notifySuccess('Logged in successfully!');
+      notifySuccess(t('features.authKid.notifications.loginSuccess'));
 
       const redirect = (route.query.redirect as string | undefined) ?? { name: 'child-dashboard' };
       void router.push(redirect);
     },
     onError: () => {
-      const key = 'features.authKid.errors.invalidPasscode';
-      const fallback = 'Unable to log in. Check your passcode and try again.';
-      const localized = t(key);
-      const message = localized === key ? fallback : localized;
+      const message = t('features.authKid.errors.invalidPasscode');
       notifyError(message);
       form.setErrors({ passcode: message });
     }

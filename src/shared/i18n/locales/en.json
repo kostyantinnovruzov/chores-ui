@@ -38,6 +38,7 @@
     "authKid": {
       "title": "Welcome back!",
       "subtitle": "Tap the emojis in your secret code to log in.",
+      "heroTitle": "🌟 Chores Fun! 🌟",
       "pickProfileTitle": "Who's playing today?",
       "pickProfileSubtitle": "Choose your profile to jump into your chores.",
       "noProfiles": "No child profiles yet. Ask your parent for help.",
@@ -52,6 +53,19 @@
       "passcode": "Emoji passcode",
       "submit": "Enter dashboard",
       "pinInstruction": "Pick {min} to {max} emojis for your code.",
+      "profileCarousel": {
+        "prev": "Previous profile",
+        "next": "Next profile"
+      },
+      "pinModal": {
+        "title": "Enter your emoji PIN"
+      },
+      "errors": {
+        "invalidPasscode": "Oops! That emoji code didn't match. Try again."
+      },
+      "notifications": {
+        "loginSuccess": "Logged in successfully!"
+      },
       "pinKeyboard": {
         "placeholder": "Tap emojis to build your code",
         "clear": "Clear",

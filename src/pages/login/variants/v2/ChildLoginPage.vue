@@ -5,7 +5,7 @@
 
     <section class="page__content">
       <header class="hero">
-        <h1 class="hero__title">🌟 Chores Fun! 🌟</h1>
+        <h1 class="hero__title">{{ t('features.authKid.heroTitle') }}</h1>
         <p class="hero__subtitle">{{ t('features.authKid.pickProfileSubtitle') }}</p>
       </header>
 

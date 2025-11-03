@@ -20,7 +20,7 @@
         type="button"
         class="carousel__nav carousel__nav--prev"
         :disabled="controlsDisabled"
-        aria-label="Previous profile"
+        :aria-label="t('features.authKid.profileCarousel.prev')"
         @click="handlePrev"
       >
         ‹
@@ -57,7 +57,7 @@
         type="button"
         class="carousel__nav carousel__nav--next"
         :disabled="controlsDisabled"
-        aria-label="Next profile"
+        :aria-label="t('features.authKid.profileCarousel.next')"
         @click="handleNext"
       >
         ›

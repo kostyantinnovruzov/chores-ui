@@ -20,7 +20,7 @@
             <button
               type="button"
               class="pin__close"
-              :aria-label="t('features.authKid.actions.changeProfile', 'Change profile')"
+              :aria-label="t('features.authKid.changeProfile')"
               @click="handleClose"
             >
               &times;
@@ -38,7 +38,7 @@
 
               <div class="pin__summary">
                 <p class="pin__summary-label">
-                  {{ t('features.authKid.pinModal.title', 'Enter emoji PIN') }}
+                  {{ t('features.authKid.pinModal.title') }}
                 </p>
                 <p class="pin__summary-name">{{ selectedChild?.nickname }}</p>
               </div>
