@@ -47,14 +47,6 @@
       >
         {{ t('features.authKid.pinKeyboard.clear') }}
       </button>
-      <button
-        type="button"
-        class="keyboard__action keyboard__action--primary"
-        :disabled="disabled || !isLengthValid"
-        @click="complete"
-      >
-        {{ t('features.authKid.pinKeyboard.submit') }}
-      </button>
     </div>
   </section>
 </template>
@@ -94,9 +86,6 @@ const { t } = useI18n();
 const emojiEntries = EMOJI_PIN_ENTRIES;
 const slotCount = computed(() => Math.max(props.maxLength, props.minLength));
 const currentLength = computed(() => props.modelValue.length);
-const isLengthValid = computed(
-  () => currentLength.value >= props.minLength && currentLength.value <= props.maxLength
-);
 const displayEmojis = computed(() =>
   props.modelValue.map((digit) => DIGIT_TO_EMOJI.get(digit) ?? '')
 );
@@ -116,7 +105,11 @@ const gradients = [
 
 function append(entry: EmojiPinEntry) {
   if (props.disabled || currentLength.value >= props.maxLength) return;
-  emit('update:modelValue', [...props.modelValue, entry.value]);
+  const next = [...props.modelValue, entry.value];
+  emit('update:modelValue', next);
+  if (next.length >= props.maxLength && next.length >= props.minLength) {
+    window.setTimeout(() => emit('complete'), 150);
+  }
 }
 
 function clear() {
@@ -127,11 +120,6 @@ function clear() {
 function removeLast() {
   if (props.disabled || !currentLength.value) return;
   emit('update:modelValue', props.modelValue.slice(0, -1));
-}
-
-function complete() {
-  if (props.disabled || !isLengthValid.value) return;
-  emit('complete');
 }
 
 function buttonGradient(index: number) {
@@ -177,17 +165,12 @@ function buttonGradient(index: number) {
 }
 
 .keyboard__actions {
-  @apply grid grid-cols-3 gap-3;
+  @apply grid grid-cols-2 gap-3;
 }
 
 .keyboard__action {
   @apply rounded-2xl bg-white/90 px-4 py-3 text-sm font-semibold text-indigo-800 shadow-md
     shadow-indigo-200/60 transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed
     disabled:opacity-45;
-}
-
-.keyboard__action--primary {
-  @apply bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-indigo-300/60
-    hover:shadow-xl;
 }
 </style>
