@@ -5,6 +5,12 @@
 @import '@/shared/ui/styles/reset.css';
 @import '@/shared/ui/styles/theme.css';
 
+@layer utilities {
+  .animate-kid-shake {
+    animation: kid-login-shake 0.6s ease;
+  }
+}
+
 body {
   background-image: radial-gradient(circle at top, rgb(99 102 241 / 12%), transparent 40%);
 }

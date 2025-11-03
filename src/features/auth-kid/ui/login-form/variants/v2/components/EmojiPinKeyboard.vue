@@ -1,6 +1,10 @@
 <template>
   <section class="keyboard" :class="{ 'keyboard--disabled': disabled }">
-    <div class="keyboard__display" aria-live="polite">
+    <div
+      class="keyboard__display"
+      :class="{ 'keyboard__display--invalid': isInvalid }"
+      aria-live="polite"
+    >
       <div
         v-for="slotIndex in slotCount"
         :key="slotIndex"
@@ -67,12 +71,14 @@ const props = withDefaults(
     disabled?: boolean;
     minLength?: number;
     maxLength?: number;
+    isInvalid?: boolean;
   }>(),
   {
     modelValue: () => [],
     disabled: false,
     minLength: 4,
-    maxLength: 6
+    maxLength: 6,
+    isInvalid: false
   }
 );
 
@@ -89,6 +95,8 @@ const currentLength = computed(() => props.modelValue.length);
 const displayEmojis = computed(() =>
   props.modelValue.map((digit) => DIGIT_TO_EMOJI.get(digit) ?? '')
 );
+
+const isInvalid = computed(() => props.isInvalid);
 
 const gradients = [
   'linear-gradient(135deg, #fde68a, #fbbf24)',
@@ -137,9 +145,13 @@ function buttonGradient(index: number) {
 }
 
 .keyboard__display {
-  @apply mx-auto flex w-full max-w-[19rem] items-center justify-center rounded-full
-    bg-indigo-50/90 px-3 py-2 shadow-inner shadow-indigo-200/50 gap-2 sm:max-w-[22rem]
+  @apply mx-auto flex w-full max-w-[19rem] items-center justify-center rounded-full border-2
+    border-transparent bg-indigo-50/90 px-3 py-2 shadow-inner shadow-indigo-200/50 gap-2 sm:max-w-[22rem]
     sm:px-4 sm:py-3 sm:gap-3 md:max-w-[26rem] md:px-6 md:py-4 md:gap-4;
+}
+
+.keyboard__display--invalid {
+  @apply border-rose-500 bg-rose-50/80 shadow-rose-300/70;
 }
 
 .keyboard__slot {

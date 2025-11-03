@@ -9,12 +9,13 @@
       leave-to-class="opacity-0 translate-y-6"
     >
       <form v-if="selectedChild" @submit.prevent="submit">
-        <div class="pin__panel" :class="{ 'animate-kid-shake': isShaking }">
+        <div class="pin__panel" :class="{ 'pin__panel--error': isShaking }">
           <EmojiPinKeyboard
             v-model="passcodeValue"
             :disabled="isSubmitting"
             :min-length="4"
             :max-length="4"
+            :is-invalid="isShaking"
             @complete="submit()"
           />
         </div>
@@ -56,6 +57,11 @@ const isShaking = ref(false);
 let shakeTimer: number | undefined;
 const passcodeError = computed(() => errors.value.passcode);
 
+watch(passcodeValue, () => {
+  if (!passcodeError.value) return;
+  resetErrors();
+});
+
 watch(
   selectedChild,
   (child, previous) => {
@@ -85,6 +91,31 @@ onBeforeUnmount(() => {
 <style scoped>
 .pin__panel {
   @apply rounded-[28px] border-4 border-white bg-white/70 p-6 shadow-[0_24px_60px_rgba(99,102,241,0.18)] transition;
+}
+
+.pin__panel--error {
+  animation: pin-panel-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+
+  @apply border-rose-300 shadow-rose-300/70;
+}
+
+@keyframes pin-panel-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  15%,
+  45%,
+  75% {
+    transform: translateX(-18px);
+  }
+
+  30%,
+  60%,
+  90% {
+    transform: translateX(18px);
+  }
 }
 
 .pin__error {

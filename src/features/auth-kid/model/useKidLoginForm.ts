@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/vue-query';
 import { useField, useForm } from 'vee-validate';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { kidAuthApi, type KidLoginRequest } from '../api/kid-auth-api';
@@ -20,6 +21,7 @@ export function useKidLoginForm() {
   const router = useRouter();
   const route = useRoute();
   const session = useSessionStore();
+  const { t } = useI18n();
 
   const form = useForm<KidLoginFormValues>({
     initialValues: {
@@ -55,7 +57,12 @@ export function useKidLoginForm() {
       void router.push(redirect);
     },
     onError: () => {
-      notifyError('Unable to log in. Check your passcode and try again.');
+      const errorMessage = t(
+        'features.authKid.errors.invalidPasscode',
+        'Unable to log in. Check your passcode and try again.'
+      );
+      notifyError(errorMessage);
+      form.setErrors({ passcode: errorMessage });
     }
   });
 
