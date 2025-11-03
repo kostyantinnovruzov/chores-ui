@@ -201,9 +201,11 @@ function cardStyle(entry: VisibleEntry): CSSProperties {
 
   return {
     background: gradientPalette[paletteIndex],
+    left: '50%',
+    top: '50%',
     transform: `translate(-50%, -50%) translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
     opacity,
-    filter: isActive ? 'none' : 'blur(2px)',
+    filter: isActive ? 'none' : 'blur(1.5px)',
     pointerEvents,
     zIndex: isActive ? 10 : 1
   };
@@ -251,6 +253,8 @@ function normalizeIndex(target: number, length: number) {
   @apply flex h-14 w-14 items-center justify-center rounded-full bg-white/85 text-3xl text-indigo-900
     shadow-xl shadow-indigo-300/50 transition hover:-translate-y-0.5 hover:scale-105 hover:bg-white
     disabled:cursor-not-allowed disabled:opacity-40;
+
+  z-index: 20;
 }
 
 .carousel__deck {
