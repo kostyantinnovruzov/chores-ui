@@ -53,13 +53,24 @@
               @complete="submit()"
             />
           </div>
-
-          <p v-if="passcodeError" class="pin__error">
-            {{ passcodeError }}
-          </p>
         </form>
       </div>
     </Transition>
+
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="-translate-y-6 opacity-0"
+        enter-to-class="translate-y-0 opacity-100"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="toastMessage" class="pin__toast pin__toast-global" role="alert">
+          {{ toastMessage }}
+        </div>
+      </Transition>
+    </Teleport>
   </section>
 </template>
 
@@ -92,7 +103,9 @@ const passcodeValue = computed<string[]>({
 });
 
 const isShaking = ref(false);
+const toastMessage = ref('');
 let shakeTimer: number | undefined;
+let toastTimer: number | undefined;
 const passcodeError = computed(() => errors.value.passcode);
 const childInitials = computed(() => {
   const name = selectedChild.value?.nickname ?? '';
@@ -108,6 +121,7 @@ const childInitials = computed(() => {
 watch(passcodeValue, () => {
   if (!passcodeError.value) return;
   resetErrors();
+  toastMessage.value = '';
 });
 
 watch(
@@ -126,6 +140,11 @@ watch(passcodeError, (message) => {
   if (!message) return;
   window.clearTimeout(shakeTimer);
   isShaking.value = true;
+  toastMessage.value = message;
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toastMessage.value = '';
+  }, 5000);
   shakeTimer = window.setTimeout(() => {
     isShaking.value = false;
   }, 650);
@@ -133,9 +152,11 @@ watch(passcodeError, (message) => {
 
 onBeforeUnmount(() => {
   window.clearTimeout(shakeTimer);
+  window.clearTimeout(toastTimer);
 });
 
 function handleClose() {
+  toastMessage.value = '';
   emit('change-child');
 }
 </script>
@@ -147,6 +168,11 @@ function handleClose() {
 
 .login__modal {
   @apply w-full max-w-[30rem];
+}
+
+.pin__toast-global {
+  @apply fixed top-6 left-1/2 z-[999] w-[min(90%,24rem)] -translate-x-1/2 rounded-2xl bg-rose-500/95 px-5 py-3
+    text-sm font-semibold text-white shadow-xl shadow-rose-400/40 backdrop-blur;
 }
 
 .pin__panel {

@@ -2,7 +2,6 @@
   <section class="login-card">
     <header class="login-card__header">
       <h1>{{ t('features.authParent.title') }}</h1>
-      <p>{{ t('features.authParent.subtitle') }}</p>
     </header>
 
     <form class="login-card__form" @submit.prevent="submit">
