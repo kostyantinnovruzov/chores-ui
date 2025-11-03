@@ -57,12 +57,12 @@ export function useKidLoginForm() {
       void router.push(redirect);
     },
     onError: () => {
-      const errorMessage = t(
-        'features.authKid.errors.invalidPasscode',
-        'Unable to log in. Check your passcode and try again.'
-      );
-      notifyError(errorMessage);
-      form.setErrors({ passcode: errorMessage });
+      const key = 'features.authKid.errors.invalidPasscode';
+      const fallback = 'Unable to log in. Check your passcode and try again.';
+      const localized = t(key);
+      const message = localized === key ? fallback : localized;
+      notifyError(message);
+      form.setErrors({ passcode: message });
     }
   });
 

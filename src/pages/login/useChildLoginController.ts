@@ -69,8 +69,9 @@ export function useChildLoginController(): ChildLoginController {
     selectedKid.value = kid;
   }
 
-  function handleHighlightKid(kid: KidProfile) {
-    selectedKid.value = kid;
+  function handleHighlightKid(_kid: KidProfile) {
+    void _kid;
+    // Highlighting only previews the profile; selection now happens on explicit tap.
   }
 
   function handleChangeKid() {
