@@ -96,7 +96,12 @@
       "greeting": "Hi {name}!",
       "pendingTitle": "Today's chores",
       "upcomingTitle": "Upcoming",
-      "unscheduledTitle": "Someday"
+      "unscheduledTitle": "Someday",
+      "summary": {
+        "pending": "Pending",
+        "completedToday": "Completed today",
+        "overdue": "Overdue"
+      }
     }
   }
 }
