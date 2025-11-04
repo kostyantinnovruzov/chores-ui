@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { kidAuthApi, type KidLoginRequest } from '../api/kid-auth-api';
+import { kidAuthApi, type KidLoginRequest, type KidLoginResponse } from '../api/kid-auth-api';
 import { kidLoginSchema } from '../lib/schema';
 
 import { getBrowserDeviceName } from '@/shared/lib/device';
@@ -17,7 +17,11 @@ interface KidLoginFormValues {
   deviceName: string;
 }
 
-export function useKidLoginForm() {
+interface UseKidLoginFormOptions {
+  onSuccess?: (context: { response: KidLoginResponse; redirect: () => Promise<void> }) => void;
+}
+
+export function useKidLoginForm(options?: UseKidLoginFormOptions) {
   const router = useRouter();
   const route = useRoute();
   const session = useSessionStore();
@@ -53,8 +57,16 @@ export function useKidLoginForm() {
 
       notifySuccess(t('features.authKid.notifications.loginSuccess'));
 
-      const redirect = (route.query.redirect as string | undefined) ?? { name: 'child-dashboard' };
-      void router.push(redirect);
+      const redirect = () => {
+        const target = (route.query.redirect as string | undefined) ?? { name: 'child-dashboard' };
+        return router.push(target);
+      };
+
+      if (options?.onSuccess) {
+        options.onSuccess({ response, redirect });
+      } else {
+        void redirect();
+      }
     },
     onError: () => {
       const message = t('features.authKid.errors.invalidPasscode');

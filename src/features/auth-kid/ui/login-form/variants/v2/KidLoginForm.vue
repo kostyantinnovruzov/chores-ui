@@ -71,6 +71,20 @@
         </div>
       </Transition>
     </Teleport>
+
+    <Teleport to="body">
+      <div v-if="isCelebrating" class="pin__celebration" aria-hidden="true">
+        <span class="pin__star">⭐</span>
+        <div class="pin__confetti">
+          <span
+            v-for="piece in confettiPieces"
+            :key="piece.id"
+            class="pin__confetti-piece"
+            :style="piece.style"
+          />
+        </div>
+      </div>
+    </Teleport>
   </section>
 </template>
 
@@ -91,8 +105,15 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
+type ConfettiPiece = {
+  id: number;
+  style: Record<string, string>;
+};
+
 const { selectedChild } = toRefs(props);
-const { submit, isSubmitting, errors, models, resetErrors } = useKidLoginForm();
+const { submit, isSubmitting, errors, models, resetErrors } = useKidLoginForm({
+  onSuccess: handleSuccess
+});
 const { childId, passcode } = models;
 
 const passcodeValue = computed<string[]>({
@@ -104,8 +125,11 @@ const passcodeValue = computed<string[]>({
 
 const isShaking = ref(false);
 const toastMessage = ref('');
+const isCelebrating = ref(false);
+const confettiPieces = ref<ConfettiPiece[]>([]);
 let shakeTimer: number | undefined;
 let toastTimer: number | undefined;
+let confettiTimer: number | undefined;
 const passcodeError = computed(() => errors.value.passcode);
 const childInitials = computed(() => {
   const name = selectedChild.value?.nickname ?? '';
@@ -153,11 +177,57 @@ watch(passcodeError, (message) => {
 onBeforeUnmount(() => {
   window.clearTimeout(shakeTimer);
   window.clearTimeout(toastTimer);
+  window.clearTimeout(confettiTimer);
 });
 
 function handleClose() {
   toastMessage.value = '';
+  isCelebrating.value = false;
+  confettiPieces.value = [];
+  window.clearTimeout(confettiTimer);
   emit('change-child');
+}
+
+function handleSuccess({ redirect }: { redirect: () => Promise<void> }) {
+  toastMessage.value = '';
+  window.clearTimeout(confettiTimer);
+  isCelebrating.value = true;
+  confettiPieces.value = createConfettiPieces();
+  confettiTimer = window.setTimeout(() => {
+    isCelebrating.value = false;
+    confettiPieces.value = [];
+    void redirect();
+  }, 1800);
+}
+
+function createConfettiPieces(count = 36): ConfettiPiece[] {
+  const colors = ['#f87171', '#fb923c', '#facc15', '#34d399', '#38bdf8', '#a855f7'];
+
+  return Array.from({ length: count }, (_, index) => {
+    const color = colors[index % colors.length];
+    const delay = (Math.random() * 200) / 1000;
+    const duration = 1.4 + Math.random() * 0.6;
+    const offset = (Math.random() - 0.5) * 160;
+    const rotateStart = Math.floor(Math.random() * 360);
+    const rotateEnd = rotateStart + 540 + Math.floor(Math.random() * 360);
+    const width = 6 + Math.random() * 6;
+    const height = 10 + Math.random() * 14;
+
+    return {
+      id: index,
+      style: {
+        left: `${Math.random() * 100}%`,
+        width: `${width}px`,
+        height: `${height}px`,
+        background: color,
+        '--confetti-delay': `${delay}s`,
+        '--confetti-duration': `${duration}s`,
+        '--confetti-offset': `${offset}px`,
+        '--confetti-rotate-start': `${rotateStart}deg`,
+        '--confetti-rotate-end': `${rotateEnd}deg`
+      }
+    };
+  });
 }
 </script>
 
@@ -173,6 +243,29 @@ function handleClose() {
 .pin__toast-global {
   @apply fixed top-6 left-1/2 z-[999] w-[min(90%,24rem)] -translate-x-1/2 rounded-2xl bg-rose-500/95 px-5 py-3
     text-sm font-semibold text-white shadow-xl shadow-rose-400/40 backdrop-blur;
+}
+
+.pin__celebration {
+  @apply pointer-events-none fixed inset-0 z-[998] overflow-hidden;
+}
+
+.pin__star {
+  @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl drop-shadow-[0_20px_45px_rgba(251,191,36,0.55)];
+
+  animation: pin-star-dance 1.6s ease-in-out forwards;
+}
+
+.pin__confetti {
+  @apply absolute inset-0 overflow-hidden;
+}
+
+.pin__confetti-piece {
+  @apply absolute block rounded-md opacity-0;
+
+  top: -12vh;
+  animation: pin-confetti-fall var(--confetti-duration, 1.6s) linear forwards;
+  animation-delay: var(--confetti-delay, 0s);
+  will-change: transform, opacity;
 }
 
 .pin__panel {
@@ -232,6 +325,49 @@ function handleClose() {
   60%,
   90% {
     transform: translateX(18px);
+  }
+}
+
+@keyframes pin-confetti-fall {
+  0% {
+    transform: translate(var(--confetti-offset, 0), -120vh)
+      rotate(var(--confetti-rotate-start, 0deg));
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--confetti-offset, 0), 110vh)
+      rotate(var(--confetti-rotate-end, 720deg));
+    opacity: 0;
+  }
+}
+
+@keyframes pin-star-dance {
+  0% {
+    transform: translate(-50%, -60%) scale(0.4) rotate(-20deg);
+    opacity: 0;
+  }
+
+  30% {
+    transform: translate(-50%, -50%) scale(1) rotate(10deg);
+    opacity: 1;
+  }
+
+  60% {
+    transform: translate(-50%, -48%) scale(1.15) rotate(-8deg);
+  }
+
+  80% {
+    transform: translate(-50%, -52%) scale(1.05) rotate(6deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 0;
   }
 }
 
