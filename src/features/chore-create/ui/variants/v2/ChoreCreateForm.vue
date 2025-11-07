@@ -39,17 +39,30 @@
       </div>
 
       <div class="create__field">
-        <label class="create__label" for="chore-category">
-          {{ t('features.choreCreate.categoryLabel') }}
-        </label>
-        <input
-          id="chore-category"
-          v-model="category"
-          class="create__input"
-          type="text"
-          name="category"
-        />
-        <p v-if="errors.category" class="create__error">{{ errors.category }}</p>
+        <span class="create__label">
+          {{ t('features.choreCreate.categoriesLabel') }}
+        </span>
+        <div v-if="categoryOptions.length" class="create__chips">
+          <label
+            v-for="categoryOption in categoryOptions"
+            :key="categoryOption.id"
+            :class="[
+              'create__chip',
+              { 'create__chip--active': categories.includes(categoryOption.id) }
+            ]"
+          >
+            <input
+              v-model="categories"
+              class="create__chip-input"
+              type="checkbox"
+              name="categories"
+              :value="categoryOption.id"
+            />
+            <span>{{ categoryOption.name }}</span>
+          </label>
+        </div>
+        <p v-else class="create__hint">{{ t('features.choreCreate.categoriesEmpty') }}</p>
+        <p v-if="errors.categories" class="create__error">{{ errors.categories }}</p>
       </div>
 
       <div class="create__field">
@@ -112,6 +125,7 @@ import { useI18n } from 'vue-i18n';
 import { choreCreateSchema } from '../../../lib/schema';
 import { useChoreCreateForm } from '../../../model/useChoreCreateForm';
 
+import type { ChoreCategory } from '@/entities/chore';
 import { useChoreUpdateMutation } from '@/entities/chore';
 
 const emit = defineEmits<{
@@ -123,15 +137,17 @@ const props = withDefaults(
     showHeader?: boolean;
     mode?: 'create' | 'edit';
     choreId?: number | null;
+    categoryOptions?: ChoreCategory[];
   }>(),
   {
     showHeader: true,
     mode: 'create',
-    choreId: null
+    choreId: null,
+    categoryOptions: () => []
   }
 );
 
-const { showHeader, mode, choreId } = toRefs(props);
+const { showHeader, mode, choreId, categoryOptions } = toRefs(props);
 
 const { t } = useI18n();
 const {
@@ -145,7 +161,7 @@ const {
   errors,
   models
 } = useChoreCreateForm();
-const { title, description, category, dueAt, points, recurrence } = models;
+const { title, description, categories, dueAt, points, recurrence } = models;
 
 const updateMutation = useChoreUpdateMutation();
 const isEditMode = computed(() => mode.value === 'edit' && choreId.value !== null);
@@ -163,7 +179,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
   const parsed = choreCreateSchema.safeParse({
     title: values.title,
     description: values.description,
-    category: values.category,
+    categories: values.categories,
     dueAt: values.dueAt || undefined,
     points: typeof values.points === 'number' ? values.points : Number(values.points),
     recurrence: values.recurrence || undefined
@@ -174,7 +190,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
     form.setErrors({
       title: fieldErrors.title?.[0],
       description: fieldErrors.description?.[0],
-      category: fieldErrors.category?.[0],
+      categories: fieldErrors.categories?.[0],
       dueAt: fieldErrors.dueAt?.[0],
       points: fieldErrors.points?.[0],
       recurrence: fieldErrors.recurrence?.[0]
@@ -189,7 +205,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
     payload: {
       title: parsed.data.title,
       description: parsed.data.description ?? undefined,
-      category: parsed.data.category ?? undefined,
+      categories: parsed.data.categories?.length ? parsed.data.categories : undefined,
       due_at: parsed.data.dueAt ?? undefined,
       points: parsed.data.points,
       recurrence: parsed.data.recurrence ?? undefined
@@ -259,6 +275,26 @@ function handleSubmit() {
 
 .create__field {
   @apply grid gap-2;
+}
+
+.create__chips {
+  @apply flex flex-wrap gap-2;
+}
+
+.create__chip {
+  @apply relative inline-flex cursor-pointer items-center rounded-full border border-indigo-100 bg-white/60 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-300 hover:text-slate-800;
+}
+
+.create__chip--active {
+  @apply border-indigo-400 bg-indigo-50/80 text-indigo-600 shadow-[0_10px_25px_rgba(99,102,241,0.25)];
+}
+
+.create__chip-input {
+  @apply sr-only;
+}
+
+.create__hint {
+  @apply text-sm text-slate-500;
 }
 
 .create__field--span {

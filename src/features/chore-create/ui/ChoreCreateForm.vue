@@ -13,6 +13,7 @@ import { computed, ref } from 'vue';
 import ChoreCreateFormV1 from './variants/v1/ChoreCreateForm.vue';
 import ChoreCreateFormV2 from './variants/v2/ChoreCreateForm.vue';
 
+import type { ChoreCategory } from '@/entities/chore';
 import { useDesignVersion } from '@/shared/lib/design';
 
 const props = withDefaults(
@@ -20,11 +21,13 @@ const props = withDefaults(
     showHeader?: boolean;
     mode?: 'create' | 'edit';
     choreId?: number | null;
+    categoryOptions?: ChoreCategory[];
   }>(),
   {
     showHeader: true,
     mode: 'create',
-    choreId: null
+    choreId: null,
+    categoryOptions: () => []
   }
 );
 

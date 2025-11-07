@@ -20,7 +20,7 @@
   "entities": {
     "chore": {
       "due": "Due",
-      "category": "Category",
+      "categories": "Categories",
       "status": "Status",
       "markDone": "Mark chore as done"
     }
@@ -79,7 +79,8 @@
       "dueAtLabel": "Due time",
       "pointsLabel": "Points",
       "descriptionLabel": "Description",
-      "categoryLabel": "Category",
+      "categoriesLabel": "Categories",
+      "categoriesEmpty": "No categories available yet",
       "recurrenceLabel": "Recurrence",
       "recurrenceDaily": "Daily",
       "recurrenceWeekly": "Weekly",

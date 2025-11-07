@@ -12,11 +12,10 @@ export const choreCreateSchema = z.object({
     .max(500)
     .optional()
     .transform((value) => value || null),
-  category: z
-    .string()
-    .max(100)
+  categories: z
+    .array(z.number().int().positive())
     .optional()
-    .transform((value) => value || null),
+    .transform((value) => value ?? []),
   dueAt: z
     .string()
     .optional()

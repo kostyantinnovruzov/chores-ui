@@ -1,11 +1,16 @@
 export type ChoreStatus = 'pending' | 'completed' | 'approved';
 
+export interface ChoreCategory {
+  id: number;
+  name: string;
+}
+
 export interface Chore {
   id: number;
   childId: number;
   title: string;
   description: string | null;
-  category: string | null;
+  categories: ChoreCategory[];
   dueAt: string | null;
   points: number;
   recurrence: 'daily' | 'weekly' | null;

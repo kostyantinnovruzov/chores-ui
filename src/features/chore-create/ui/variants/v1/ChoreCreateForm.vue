@@ -16,11 +16,28 @@
         <small v-if="errors.description">{{ errors.description }}</small>
       </label>
 
-      <label>
-        <span>{{ t('features.choreCreate.categoryLabel') }}</span>
-        <input v-model="category" type="text" name="category" />
-        <small v-if="errors.category">{{ errors.category }}</small>
-      </label>
+      <fieldset>
+        <legend>{{ t('features.choreCreate.categoriesLabel') }}</legend>
+        <div v-if="categoryOptions.length" class="chore-create__options">
+          <label
+            v-for="categoryOption in categoryOptions"
+            :key="categoryOption.id"
+            class="chore-create__option"
+          >
+            <input
+              v-model="categories"
+              type="checkbox"
+              name="categories"
+              :value="categoryOption.id"
+            />
+            <span>{{ categoryOption.name }}</span>
+          </label>
+        </div>
+        <small v-else class="chore-create__hint">{{
+          t('features.choreCreate.categoriesEmpty')
+        }}</small>
+        <small v-if="errors.categories">{{ errors.categories }}</small>
+      </fieldset>
 
       <label>
         <span>{{ t('features.choreCreate.dueAtLabel') }}</span>
@@ -59,6 +76,7 @@ import { useI18n } from 'vue-i18n';
 import { choreCreateSchema } from '../../../lib/schema';
 import { useChoreCreateForm } from '../../../model/useChoreCreateForm';
 
+import type { ChoreCategory } from '@/entities/chore';
 import { useChoreUpdateMutation } from '@/entities/chore';
 
 const emit = defineEmits<{
@@ -70,15 +88,17 @@ const props = withDefaults(
     showHeader?: boolean;
     mode?: 'create' | 'edit';
     choreId?: number | null;
+    categoryOptions?: ChoreCategory[];
   }>(),
   {
     showHeader: true,
     mode: 'create',
-    choreId: null
+    choreId: null,
+    categoryOptions: () => []
   }
 );
 
-const { showHeader, mode, choreId } = toRefs(props);
+const { showHeader, mode, choreId, categoryOptions } = toRefs(props);
 
 const { t } = useI18n();
 const {
@@ -92,7 +112,7 @@ const {
   errors,
   models
 } = useChoreCreateForm();
-const { title, description, category, dueAt, points, recurrence } = models;
+const { title, description, categories, dueAt, points, recurrence } = models;
 
 const updateMutation = useChoreUpdateMutation();
 const isEditMode = computed(() => mode.value === 'edit' && choreId.value !== null);
@@ -107,7 +127,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
   const parsed = choreCreateSchema.safeParse({
     title: values.title,
     description: values.description,
-    category: values.category,
+    categories: values.categories,
     dueAt: values.dueAt || undefined,
     points: typeof values.points === 'number' ? values.points : Number(values.points),
     recurrence: values.recurrence || undefined
@@ -118,7 +138,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
     form.setErrors({
       title: fieldErrors.title?.[0],
       description: fieldErrors.description?.[0],
-      category: fieldErrors.category?.[0],
+      categories: fieldErrors.categories?.[0],
       dueAt: fieldErrors.dueAt?.[0],
       points: fieldErrors.points?.[0],
       recurrence: fieldErrors.recurrence?.[0]
@@ -133,7 +153,7 @@ const submitUpdate = form.handleSubmit(async (values) => {
     payload: {
       title: parsed.data.title,
       description: parsed.data.description ?? undefined,
-      category: parsed.data.category ?? undefined,
+      categories: parsed.data.categories?.length ? parsed.data.categories : undefined,
       due_at: parsed.data.dueAt ?? undefined,
       points: parsed.data.points,
       recurrence: parsed.data.recurrence ?? undefined
@@ -206,6 +226,40 @@ select {
 
 textarea {
   resize: vertical;
+}
+
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.chore-create__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chore-create__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.chore-create__hint {
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.8rem;
 }
 
 button {

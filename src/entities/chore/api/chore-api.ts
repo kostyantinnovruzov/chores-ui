@@ -14,7 +14,7 @@ function mapChore(response: ChildChoreResponse): Chore {
     childId: response.child_id,
     title: response.title,
     description: response.description ?? null,
-    category: response.category ?? null,
+    categories: response.categories ?? [],
     dueAt: response.due_at ?? null,
     points: response.points,
     recurrence: response.recurrence ?? null,

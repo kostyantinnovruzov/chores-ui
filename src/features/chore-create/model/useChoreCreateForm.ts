@@ -8,7 +8,7 @@ import { useChoreCreateMutation } from '@/entities/chore';
 interface ChoreCreateFormValues {
   title: string;
   description: string;
-  category: string;
+  categories: number[];
   dueAt: string;
   points: number | null;
   recurrence: '' | 'daily' | 'weekly';
@@ -17,7 +17,7 @@ interface ChoreCreateFormValues {
 const initialValues: ChoreCreateFormValues = {
   title: '',
   description: '',
-  category: '',
+  categories: [],
   dueAt: '',
   points: 10,
   recurrence: ''
@@ -32,7 +32,9 @@ export function useChoreCreateForm() {
 
   const { value: titleModel } = useField<string>('title');
   const { value: descriptionModel } = useField<string>('description');
-  const { value: categoryModel } = useField<string>('category');
+  const { value: categoriesModel } = useField<number[]>('categories', undefined, {
+    initialValue: []
+  });
   const { value: dueAtModel } = useField<string>('dueAt');
   const { value: pointsModel } = useField<number | null>('points');
   const { value: recurrenceModel } = useField<'' | 'daily' | 'weekly'>('recurrence');
@@ -41,7 +43,7 @@ export function useChoreCreateForm() {
     const parsed = choreCreateSchema.safeParse({
       title: values.title,
       description: values.description,
-      category: values.category,
+      categories: values.categories,
       dueAt: values.dueAt || undefined,
       points: typeof values.points === 'number' ? values.points : Number(values.points),
       recurrence: values.recurrence || undefined
@@ -52,7 +54,7 @@ export function useChoreCreateForm() {
       form.setErrors({
         title: fieldErrors.title?.[0],
         description: fieldErrors.description?.[0],
-        category: fieldErrors.category?.[0],
+        categories: fieldErrors.categories?.[0],
         dueAt: fieldErrors.dueAt?.[0],
         points: fieldErrors.points?.[0],
         recurrence: fieldErrors.recurrence?.[0]
@@ -63,7 +65,7 @@ export function useChoreCreateForm() {
     await mutation.mutateAsync({
       title: parsed.data.title,
       description: parsed.data.description ?? undefined,
-      category: parsed.data.category ?? undefined,
+      categories: parsed.data.categories?.length ? parsed.data.categories : undefined,
       due_at: parsed.data.dueAt ?? undefined,
       points: parsed.data.points,
       recurrence: parsed.data.recurrence ?? undefined
@@ -89,7 +91,7 @@ export function useChoreCreateForm() {
     models: {
       title: titleModel,
       description: descriptionModel,
-      category: categoryModel,
+      categories: categoriesModel,
       dueAt: dueAtModel,
       points: pointsModel,
       recurrence: recurrenceModel

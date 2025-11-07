@@ -6,7 +6,7 @@ import {
   useChoreDeleteMutation,
   useChoreMarkDoneMutation
 } from '@/entities/chore';
-import type { Chore } from '@/entities/chore';
+import type { Chore, ChoreCategory } from '@/entities/chore';
 import { isPast, isToday } from '@/shared/lib/date';
 import { useSessionStore } from '@/shared/session';
 
@@ -16,7 +16,7 @@ export type ChoreFormHandles = {
   setInitialValues: (values: {
     title?: string;
     description?: string;
-    category?: string;
+    categories?: number[];
     dueAt?: string;
     points?: number | null;
     recurrence?: '' | 'daily' | 'weekly';
@@ -51,6 +51,17 @@ export function useChildDashboard() {
   const markDoneMutation = useChoreMarkDoneMutation();
 
   const { chores, isLoading, isError } = useChildChoresQuery();
+  const availableCategories = computed<ChoreCategory[]>(() => {
+    const map = new Map<number, ChoreCategory>();
+    chores.value.forEach((chore) => {
+      chore.categories.forEach((category) => {
+        if (!map.has(category.id)) {
+          map.set(category.id, category);
+        }
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   const childName = computed(() => session.child.user?.nickname ?? 'Friend');
 
@@ -114,7 +125,7 @@ export function useChildDashboard() {
       choreFormRef.value?.setInitialValues({
         title: chore.title,
         description: chore.description ?? '',
-        category: chore.category ?? '',
+        categories: chore.categories.map((category) => category.id),
         dueAt: chore.dueAt ? formatDateTimeLocal(chore.dueAt) : '',
         points: chore.points,
         recurrence: chore.recurrence ?? ''
@@ -160,6 +171,7 @@ export function useChildDashboard() {
     unscheduledChores,
     isLoading,
     isError,
+    availableCategories,
     isCreateModalOpen,
     modalMode,
     editingChore,

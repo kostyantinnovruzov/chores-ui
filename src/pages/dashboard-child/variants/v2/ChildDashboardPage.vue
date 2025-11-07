@@ -94,6 +94,7 @@
             :show-header="false"
             :mode="modalMode"
             :chore-id="editingChore?.id ?? null"
+            :category-options="availableCategories"
             @submitted="handleFormSubmitted"
           />
         </div>
@@ -156,6 +157,7 @@ const {
   modalMode,
   editingChore,
   choreFormRef,
+  availableCategories,
   isDeleteModalOpen,
   choreToDelete,
   isDeleting,

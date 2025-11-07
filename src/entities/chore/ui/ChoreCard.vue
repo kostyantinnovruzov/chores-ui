@@ -23,9 +23,9 @@
         <dt>{{ t('entities.chore.due') }}</dt>
         <dd>{{ dueLabel }}</dd>
       </div>
-      <div v-if="chore.category">
-        <dt>{{ t('entities.chore.category') }}</dt>
-        <dd>{{ chore.category }}</dd>
+      <div v-if="categoryLabel">
+        <dt>{{ t('entities.chore.categories') }}</dt>
+        <dd>{{ categoryLabel }}</dd>
       </div>
       <div>
         <dt>{{ t('entities.chore.status') }}</dt>
@@ -84,6 +84,10 @@ const dueLabel = computed(() => {
 const showCompletion = computed(() => props.showCompletion ?? false);
 const disabled = computed(() => props.disabled ?? false);
 const isCompleted = computed(() => props.chore.status === 'completed');
+const categoryLabel = computed(() => {
+  if (!props.chore.categories.length) return null;
+  return props.chore.categories.map((category) => category.name).join(', ');
+});
 
 function handleToggle(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -131,7 +135,7 @@ function handleToggle(event: Event) {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-accent);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgb(99 102 241 / 10%);
   border-radius: 999px;
   padding: 0.25rem 0.75rem;
 }

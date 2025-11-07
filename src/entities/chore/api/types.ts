@@ -1,9 +1,14 @@
+export interface ChildChoreCategoryResponse {
+  id: number;
+  name: string;
+}
+
 export interface ChildChoreResponse {
   id: number;
   child_id: number;
   title: string;
   description: string | null;
-  category: string | null;
+  categories: ChildChoreCategoryResponse[];
   due_at: string | null;
   points: number;
   recurrence: 'daily' | 'weekly' | null;
@@ -20,7 +25,7 @@ export interface ChildChoreCollectionResponse {
 export interface ChildChoreCreateRequest {
   title: string;
   description?: string | null;
-  category?: string | null;
+  categories?: number[];
   due_at?: string | null;
   points: number;
   recurrence?: 'daily' | 'weekly' | null;
