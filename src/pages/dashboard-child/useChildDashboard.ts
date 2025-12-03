@@ -165,6 +165,7 @@ export function useChildDashboard() {
   return {
     // state
     childName,
+    chores,
     summary,
     todayChores,
     upcomingChores,
